@@ -17,4 +17,4 @@
 
 “地瓜哥”博客网:: http://www.diguage.com/ 。D瓜哥的个人博客。欢迎光临，不过，内容很杂乱，请见谅。不见谅，你来打我啊，😂😂
 本文档官网:: http://notes.diguage.com/byte-buddy-tutorial/ 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。
-本文档版本库:: https://github.com/diguage/byte-buddy-tutorial 。等代码完善后，再放出版本库吧。
+本文档版本库:: https://github.com/diguage/byte-buddy-tutorial 。反正也没啥保密可言，版本库分分钟给出。😜
