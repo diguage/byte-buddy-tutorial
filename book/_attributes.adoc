@@ -18,8 +18,8 @@
 :figure-caption: 图
 :version-label: V
 :pdf-page-size: A4
-:keywords: 设计模式, Design Pattern
-:description: 深入理解设计模式。
+:keywords: Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机
+:description: Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。
 :last-update-label: 最后更新时间
 :homepage: http://www.diguage.com/
 :base_dir: ..
@@ -30,7 +30,7 @@
 //-- 以上是 Asciidoctor 系统变量  -----------------------------------------
 //-- 以下是 自定义变量
 
-:source_dir: {project_dir}/src/main/java/com/diguage/didp
+:source_dir: {project_dir}/src/main/java/com/diguage
 
 :puml_dir: {project_dir}/puml
 
@@ -41,12 +41,3 @@
 :source_attr: linenums,subs="attributes,verbatim"
 
 :java_source_attr: java,linenums,subs="attributes,verbatim"
-
-:puml_attr: format=svg,align="center",width={var_width}
-
-:bk_java_lang_spec: pass:replacements[《The Java(R) Language Specification Java SE 8 Edition》]
-
-:bk_big_talk_dp: pass:replacements[https://book.douban.com/subject/2334288/[《大话设计模式》]]
-
-:bk_dp: pass:replacements[http://book.douban.com/subject/1052241/[《设计模式》]]
-:bkn_dp: pass:replacements[Erich Gamma、Richard Helm、Ralph Johnson、John Vlissides,《设计模式》]
