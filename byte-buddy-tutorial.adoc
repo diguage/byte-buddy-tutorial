@@ -1,4 +1,4 @@
-= 深入学习设计模式 ^Alpha^
+= Byte Buddy 教程 ^Alpha^
 D瓜哥 <http://www.diguage.com/>
 v0.1.0, 2016-11-16
 :base_dir: .
