@@ -1,2 +1,0 @@
-[[creating-a-class]]
-== 创建一个类

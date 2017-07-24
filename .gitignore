@@ -1,11 +1,4 @@
-*.epub
-*.html
-*.iml
-*.mobi
-*.pdf
-.asciidoctor
 .bundle
-.idea/*
 .rake_tasks
 bin
-target
+*.adoc
