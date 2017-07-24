@@ -1,2 +1,47 @@
 [[annotations]]
 == 注解
+
+
+[source,{java_source_attr}]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@interface RuntimeDefinition { }
+
+class RuntimeDefinitionImpl implements RuntimeDefinition {
+  @Override
+  public Class<? extends Annotation> annotationType() {
+    return RuntimeDefinition.class;
+  }
+}
+
+new ByteBuddy()
+  .subclass(Object.class)
+  .annotateType(new RuntimeDefinitionImpl())
+  .make();
+----
+
+[source,{java_source_attr}]
+----
+new ByteBuddy()
+  .subclass(Object.class)
+    .annotateType(new RuntimeDefinitionImpl())
+  .method(named("toString"))
+    .intercept(SuperMethodCall.INSTANCE)
+    .annotateMethod(new RuntimeDefinitionImpl())
+  .defineField("foo", Object.class)
+    .annotateField(new RuntimeDefinitionImpl())
+----
+
+
+[source,{java_source_attr}]
+----
+class AnnotatedMethod {
+  @SomeAnnotation
+  void bar() { }
+}
+new ByteBuddy()
+  .subclass(AnnotatedMethod.class)
+  .method(named("bar"))
+  .intercept(StubMethod.INSTANCE)
+  .attribute(MethodAttributeAppender.ForInstrumentedMethod.INSTANCE)
+----

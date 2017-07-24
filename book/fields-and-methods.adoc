@@ -1,2 +1,329 @@
 [[fields-and-methods]]
 == 属性和方法
+
+[source,{java_source_attr}]
+----
+String toString = new ByteBuddy()
+  .subclass(Object.class)
+  .name("example.Type")
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded()
+  .newInstance() // Java reflection API
+  .toString();
+----
+
+[source,{java_source_attr}]
+----
+String toString = new ByteBuddy()
+  .subclass(Object.class)
+  .name("example.Type")
+  .method(named("toString")).intercept(FixedValue.value("Hello World!"))
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded()
+  .newInstance()
+  .toString();
+----
+
+[source,{java_source_attr}]
+----
+named("toString").and(returns(String.class)).and(takesArguments(0))
+----
+
+[source,{java_source_attr}]
+----
+class Foo {
+  public String bar() { return null; }
+  public String foo() { return null; }
+  public String foo(Object o) { return null; }
+}
+
+Foo dynamicFoo = new ByteBuddy()
+  .subclass(Foo.class)
+  .method(isDeclaredBy(Foo.class)).intercept(FixedValue.value("One!"))
+  .method(named("foo")).intercept(FixedValue.value("Two!"))
+  .method(named("foo").and(takesArguments(1))).intercept(FixedValue.value("Three!"))
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded()
+  .newInstance();
+----
+
+[source,{java_source_attr}]
+----
+new ByteBuddy()
+  .subclass(Foo.class)
+  .method(isDeclaredBy(Foo.class)).intercept(FixedValue.value(0))
+  .make();
+----
+[source,{java_source_attr}]
+----
+class Source {
+  public String hello(String name) { return null; }
+}
+
+class Target {
+  public static String hello(String name) {
+    return "Hello " + name + "!";
+  }
+}
+
+String helloWorld = new ByteBuddy()
+  .subclass(Source.class)
+  .method(named("hello")).intercept(MethodDelegation.to(Target.class))
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded()
+  .newInstance()
+  .hello("World");
+----
+
+[source,{java_source_attr}]
+----
+class Target {
+  public static String intercept(String name) { return "Hello " + name + "!"; }
+  public static String intercept(int i) { return Integer.toString(i); }
+  public static String intercept(Object o) { return o.toString(); }
+}
+----
+
+[source,{java_source_attr}]
+----
+void foo(Object o1, Object o2)
+----
+
+[source,{java_source_attr}]
+----
+void foo(@Argument(0) Object o1, @Argument(1) Object o2)
+----
+
+[source,{java_source_attr}]
+----
+class MemoryDatabase {
+  public List<String> load(String info) {
+    return Arrays.asList(info + ": foo", info + ": bar");
+  }
+}
+
+class LoggerInterceptor {
+  public static List<String> log(@SuperCall Callable<List<String>> zuper)
+      throws Exception {
+    System.out.println("Calling database");
+    try {
+      return zuper.call();
+    } finally {
+      System.out.println("Returned from database");
+    }
+  }
+}
+
+MemoryDatabase loggingDatabase = new ByteBuddy()
+  .subclass(MemoryDatabase.class)
+  .method(named("load")).intercept(MethodDelegation.to(LoggerInterceptor.class))
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded()
+  .newInstance();
+----
+
+[source,{java_source_attr}]
+----
+class LoggingMemoryDatabase extends MemoryDatabase {
+
+  private class LoadMethodSuperCall implements Callable {
+
+    private final String info;
+    private LoadMethodSuperCall(String info) {
+      this.info = info;
+    }
+
+    @Override
+    public Object call() throws Exception {
+      return LoggingMemoryDatabase.super.load(info);
+    }
+  }
+
+  @Override
+  public List<String> load(String info) {
+    return LoggerInterceptor.log(new LoadMethodSuperCall(info));
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+class ChangingLoggerInterceptor {
+  public static List<String> log(String info, @Super MemoryDatabase zuper) {
+    System.out.println("Calling database");
+    try {
+      return zuper.load(info + " (logged access)");
+    } finally {
+      System.out.println("Returned from database");
+    }
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+class Loop {
+  public String loop(String value) { return value; }
+  public int loop(int value) { return value; }
+}
+----
+
+[source,{java_source_attr}]
+----
+class Interceptor {
+  @RuntimeType
+  public static Object intercept(@RuntimeType Object value) {
+    System.out.println("Invoked method with: " + value);
+    return value;
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+interface Forwarder<T, S> {
+  T to(S target);
+}
+----
+
+[source,{java_source_attr}]
+----
+class ForwardingLoggerInterceptor {
+
+  private final MemoryDatabase memoryDatabase; // constructor omitted
+
+  public List<String> log(@Pipe Forwarder<List<String>, MemoryDatabase> pipe) {
+    System.out.println("Calling database");
+    try {
+      return pipe.to(memoryDatabase);
+    } finally {
+      System.out.println("Returned from database");
+    }
+  }
+}
+
+MemoryDatabase loggingDatabase = new ByteBuddy()
+  .subclass(MemoryDatabase.class)
+  .method(named("load")).intercept(MethodDelegation.withDefaultConfiguration()
+    .withBinders(Pipe.Binder.install(Forwarder.class)))
+    .to(new ForwardingLoggerInterceptor(new MemoryDatabase()))
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded()
+  .newInstance();
+----
+
+[source,{java_source_attr}]
+----
+new ByteBuddy()
+  .subclass(Object.class)
+  .make()
+----
+
+[source,{java_source_attr}]
+----
+new ByteBuddy()
+  .subclass(Object.class, ConstructorStrategy.Default.IMITATE_SUPER_TYPE)
+  .make()
+----
+
+[source,{java_source_attr}]
+----
+interface First {
+  default String qux() { return "FOO"; }
+}
+
+interface Second {
+  default String qux() { return "BAR"; }
+}
+----
+
+[source,{java_source_attr}]
+----
+new ByteBuddy(ClassFileVersion.JAVA_V8)
+  .subclass(Object.class)
+  .implement(First.class)
+  .implement(Second.class)
+  .method(named("qux")).intercept(DefaultMethodCall.prioritize(First.class))
+  .make()
+----
+
+[source,{java_source_attr}]
+----
+public class SampleClass {
+  public SampleClass(int unusedValue) {
+    super();
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+new ByteBuddy()
+  .subclass(Object.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
+  .defineConstructor(Arrays.<Class<?>>asList(int.class), Visibility.PUBLIC)
+  .intercept(MethodCall.invoke(Object.class.getDeclaredConstructor()))
+  .make()
+----
+
+[source,{java_source_attr}]
+----
+class UserType {
+  public String doSomething() { return null; }
+}
+
+interface Interceptor {
+  String doSomethingElse();
+}
+
+interface InterceptionAccessor {
+  Interceptor getInterceptor();
+  void setInterceptor(Interceptor interceptor);
+}
+
+interface InstanceCreator {
+  Object makeInstance();
+}
+----
+
+[source,{java_source_attr}]
+----
+Class<? extends UserType> dynamicUserType = new ByteBuddy()
+  .subclass(UserType.class)
+    .method(not(isDeclaredBy(Object.class)))
+    .intercept(MethodDelegation.toField("interceptor"))
+  .defineField("interceptor", Interceptor.class, Visibility.PRIVATE)
+  .implement(InterceptionAccessor.class).intercept(FieldAccessor.ofBeanProperty())
+  .make()
+  .load(getClass().getClassLoader())
+  .getLoaded();
+----
+
+[source,{java_source_attr}]
+----
+InstanceCreator factory = new ByteBuddy()
+  .subclass(InstanceCreator.class)
+    .method(not(isDeclaredBy(Object.class)))
+    .intercept(MethodDelegation.construct(dynamicUserType))
+  .make()
+  .load(dynamicUserType.getClassLoader())
+  .getLoaded().newInstance();
+----
+
+[source,{java_source_attr}]
+----
+class HelloWorldInterceptor implements Interceptor {
+  @Override
+  public String doSomethingElse() {
+    return "Hello World!";
+  }
+}
+
+UserType userType = (UserType) factory.makeInstance();
+((InterceptionAccessor) userType).setInterceptor(new HelloWorldInterceptor());
+----

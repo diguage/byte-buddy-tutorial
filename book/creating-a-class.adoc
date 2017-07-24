@@ -1,2 +1,142 @@
 [[creating-a-class]]
 == 创建一个类
+
+[source,{java_source_attr}]
+----
+DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
+  .subclass(Object.class)
+  .make();
+----
+
+
+[source,{java_source_attr}]
+----
+DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
+  .subclass(Object.class)
+  .name("example.Type")
+  .make();
+----
+
+
+[source,{java_source_attr}]
+----
+DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
+  .with(new NamingStrategy.AbstractBase() {
+    @Override
+    public String subclass(TypeDescription superClass) {
+        return "i.love.ByteBuddy." + superClass.getSimpleName();
+    }
+  })
+  .subclass(Object.class)
+  .make();
+----
+
+
+[source,{java_source_attr}]
+----
+ByteBuddy byteBuddy = new ByteBuddy();
+byteBuddy.withNamingStrategy(new NamingStrategy.SuffixingRandom("suffix"));
+DynamicType.Unloaded<?> dynamicType = byteBuddy.subclass(Object.class).make();
+----
+
+
+[source,{java_source_attr}]
+----
+class Foo {
+  String bar() { return "bar"; }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+class Foo {
+  String bar() { return "foo" + bar$original(); }
+  private String bar$original() { return "bar"; }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+new ByteBuddy().subclass(Foo.class)
+new ByteBuddy().redefine(Foo.class)
+new ByteBuddy().rebase(Foo.class)
+----
+
+
+[source,{java_source_attr}]
+----
+Class<?> type = new ByteBuddy()
+  .subclass(Object.class)
+  .make()
+  .load(getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+  .getLoaded();
+----
+
+
+[source,{java_source_attr}]
+----
+class Foo {
+  String m() { return "foo"; }
+}
+
+class Bar {
+  String m() { return "bar"; }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+ByteBuddyAgent.install();
+Foo foo = new Foo();
+new ByteBuddy()
+  .redefine(Bar.class)
+  .name(Foo.class.getName())
+  .make()
+  .load(Foo.class.getClassLoader(), ClassReloadingStrategy.fromInstalledAgent());
+assertThat(foo.m(), is("bar"));
+----
+
+
+[source,{java_source_attr}]
+----
+package foo;
+class Bar { }
+----
+
+[source,{java_source_attr}]
+----
+class MyApplication {
+  public static void main(String[] args) {
+    TypePool typePool = TypePool.Default.ofClassPath();
+    new ByteBuddy()
+      .redefine(typePool.describe("foo.Bar").resolve(), // do not use 'Bar.class'
+                ClassFileLocator.ForClassLoader.ofClassPath())
+      .defineField("qux", String.class) // we learn more about defining fields later
+      .make()
+      .load(ClassLoader.getSystemClassLoader());
+    assertThat(Bar.class.getDeclaredField("qux"), notNullValue());
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+class ToStringAgent {
+  public static void premain(String arguments, Instrumentation instrumentation) {
+    new AgentBuilder.Default()
+        .type(isAnnotatedWith(ToString.class))
+        .transform(new AgentBuilder.Transformer() {
+      @Override
+      public DynamicType.Builder transform(DynamicType.Builder builder,
+                                              TypeDescription typeDescription,
+                                              ClassLoader classloader) {
+        return builder.method(named("toString"))
+                      .intercept(FixedValue.value("transformed"));
+      }
+    }).installOn(instrumentation);
+  }
+}
+----

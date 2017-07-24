@@ -1,2 +1,57 @@
 [[preliminary]]
 == 为什么需要在运行时生成代码？
+
+[source,{java_source_attr}]
+----
+class Service {
+  void deleteEverything() {
+    // delete everything ...
+  }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@interface Secured {
+  String user();
+}
+
+class UserHolder {
+  static String user;
+}
+
+interface Framework {
+  <T> T secure(Class<T> type);
+}
+----
+
+
+[source,{java_source_attr}]
+----
+class SecuredService extends Service {
+  @Override
+  void deleteEverything() {
+    if(UserHolder.user.equals("ADMIN")) {
+      super.deleteEverything();
+    } else {
+      throw new IllegalStateException("Not authorized");
+    }
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+class HardcodedFrameworkImpl implements Framework {
+  @Override
+  public <T> T secure(Class<T> type) {
+    if(type == Service.class) {
+      return (T) new SecuredService();
+    } else {
+      throw new IllegalArgumentException("Unknown: " + type);
+    }
+  }
+}
+----

@@ -1,2 +1,187 @@
 [[custom-instrumentation]]
 == 定制化仪表
+
+[source,{java_source_attr}]
+----
+LDC     10  // stack contains 10
+LDC     50  // stack contains 10, 50
+IADD        // stack contains 60
+IRETURN     // stack is empty
+----
+
+
+[source,{java_source_attr}]
+----
+12 00 01
+12 00 02
+60
+AC
+----
+
+[source,{java_source_attr}]
+----
+enum IntegerSum implements StackManipulation {
+
+  INSTANCE; // singleton
+
+  @Override
+  public boolean isValid() {
+    return true;
+  }
+
+  @Override
+  public Size apply(MethodVisitor methodVisitor,
+                    Implementation.Context implementationContext) {
+    methodVisitor.visitInsn(Opcodes.IADD);
+    return new Size(-1, 0);
+  }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+enum SumMethod implements ByteCodeAppender {
+
+  INSTANCE; // singleton
+
+  @Override
+  public Size apply(MethodVisitor methodVisitor,
+                    Implementation.Context implementationContext,
+                    MethodDescription instrumentedMethod) {
+    if (!instrumentedMethod.getReturnType().asErasure().represents(int.class)) {
+      throw new IllegalArgumentException(instrumentedMethod + " must return int");
+    }
+    StackManipulation.Size operandStackSize = new StackManipulation.Compound(
+      IntegerConstant.forValue(10),
+      IntegerConstant.forValue(50),
+      IntegerSum.INSTANCE,
+      MethodReturn.INTEGER
+    ).apply(methodVisitor, implementationContext);
+    return new Size(operandStackSize.getMaximalSize(),
+                    instrumentedMethod.getStackSize());
+  }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+enum SumImplementation implements Implementation {
+
+  INSTANCE; // singleton
+
+  @Override
+  public InstrumentedType prepare(InstrumentedType instrumentedType) {
+    return instrumentedType;
+  }
+
+  @Override
+  public ByteCodeAppender appender(Target implementationTarget) {
+    return SumMethod.INSTANCE;
+  }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+abstract class SumExample {
+  public abstract int calculate();
+}
+
+new ByteBuddy()
+  .subclass(SumExample.class)
+    .method(named("calculate"))
+    .intercept(SumImplementation.INSTANCE)
+  .make()
+----
+
+
+[source,{java_source_attr}]
+----
+enum ToStringAssigner implements Assigner {
+
+  INSTANCE; // singleton
+
+  @Override
+  public StackManipulation assign(TypeDescription.Generic source,
+                                  TypeDescription.Generic target,
+                                  Assigner.Typing typing) {
+    if (!source.isPrimitive() && target.represents(String.class)) {
+      MethodDescription toStringMethod = new TypeDescription.ForLoadedType(Object.class)
+        .getDeclaredMethods()
+        .filter(named("toString"))
+        .getOnly();
+      return MethodInvocation.invoke(toStringMethod).virtual(sourceType);
+    } else {
+      return StackManipulation.Illegal.INSTANCE;
+    }
+  }
+}
+----
+
+
+[source,{java_source_attr}]
+----
+new ByteBuddy()
+  .subclass(Object.class)
+  .method(named("toString"))
+    .intercept(FixedValue.value(42)
+      .withAssigner(new PrimitiveTypeAwareAssigner(ToStringAssigner.INSTANCE),
+                    Assigner.Typing.STATIC))
+  .make()
+----
+
+[source,{java_source_attr}]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@interface StringValue {
+  String value();
+}
+----
+
+[source,{java_source_attr}]
+----
+enum StringValueBinder
+    implements TargetMethodAnnotationDrivenBinder.ParameterBinder<StringValue> {
+
+  INSTANCE; // singleton
+
+  @Override
+  public Class<StringValue> getHandledType() {
+    return StringValue.class;
+  }
+
+  @Override
+  public MethodDelegationBinder.ParameterBinding<?> bind(AnnotationDescription.Loaded<StringValue> annotation,
+                                                         MethodDescription source,
+                                                         ParameterDescription target,
+                                                         Implementation.Target implementationTarget,
+                                                         Assigner assigner,
+                                                         Assigner.Typing typing) {
+    if (!target.getType().asErasure().represents(String.class)) {
+      throw new IllegalStateException(target + " makes illegal use of @StringValue");
+    }
+    StackManipulation constant = new TextConstant(annotation.loadSilent().value());
+    return new MethodDelegationBinder.ParameterBinding.Anonymous(constant);
+  }
+}
+----
+
+[source,{java_source_attr}]
+----
+class ToStringInterceptor {
+  public static String makeString(@StringValue("Hello!") String value) {
+    return value;
+  }
+}
+
+new ByteBuddy()
+  .subclass(Object.class)
+  .method(named("toString"))
+    .intercept(MethodDelegation.withDefaultConfiguration()
+      .withBinders(StringValueBinder.INSTANCE)
+      .to(ToStringInterceptor.class))
+  .make()
+----
