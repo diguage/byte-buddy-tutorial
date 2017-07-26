@@ -20,6 +20,9 @@ DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
   .make();
 ----
 
+如果没有明确的命名会怎么样呢？Byte Buddy 与 http://en.wikipedia.org/wiki/Convention_over_configuration[约定大于配置] 息息相关，为你提供了我们认为比较方面的默认配置。至于类型命名，Byte Buddy 的默认配置提供了 `NamingStrategy`，它基于动态类型的超类名称来随机生成类名。此外，名称定义在与父类相同的包下，这样父类的包级访问权限的方法对动态类型也可见。如果你将示例子类命名为 `example.Foo`，那么生成的名称将会类似于 `example.Foo$$ByteBuddy$$1376491271`，这里的数字序列是随机的。这个规则的例外情况就是当子类是从 `java.lang` 包下的类扩展时，就是 `Object` 所在的包。Java 的安全模型不允许自定义类型存放在这个命名空间下。因此，默认命名策略下，这些类型名称将会冠以 `net.bytebuddy.renamed` 的前缀。
+
+默认行为也许对你来说并不方便。感谢约定大于配置原则，你总是可以根据你的需要来选择默认行为。这正是 `ByteBuddy` 的优越之处。通过 `new ByteBuddy()` 创建实例，你就创建了整套的默认配置。通过调用在这个配置上的方法，你就可以根据你的需要来订制它。让我们试试：
 
 [source,{java_source_attr}]
 ----
@@ -34,6 +37,10 @@ DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
   .make();
 ----
 
+在上面这里例子中，我们创建了一个新的配置，在类型命名方面，不同于默认配置。匿名类被简单实现为连接 `i.love.ByteBuddy` 和基类的简要名称。当扩展 `Object` 类型时，动态类将被命名为 `i.love.ByteBuddy.Object`。当创建自己的命名策略时，需要特别小心。Java 虚拟机就是使用名字来区分不同的类型的，这正是为什么要避免命名冲突的原因。如果你需要定制命名行为，请考虑使用 Byte Buddy 内置的 `NamingStrategy.SuffixingRandom`，你可以通过引入比默认对你应用更有意义的前缀来定制命名行为。
+
+[[domain-specific-language-and-immutability]]
+=== 领域特定语言和不变性
 
 [source,{java_source_attr}]
 ----
@@ -67,6 +74,8 @@ new ByteBuddy().redefine(Foo.class)
 new ByteBuddy().rebase(Foo.class)
 ----
 
+[[loading-a-class]]
+=== 加载类
 
 [source,{java_source_attr}]
 ----
@@ -77,6 +86,8 @@ Class<?> type = new ByteBuddy()
   .getLoaded();
 ----
 
+[[reloading-a-class]]
+=== 重新加载类
 
 [source,{java_source_attr}]
 ----
@@ -102,6 +113,8 @@ new ByteBuddy()
 assertThat(foo.m(), is("bar"));
 ----
 
+[[working-with-unloaded-classes]]
+=== 操作没有加载的类
 
 [source,{java_source_attr}]
 ----
@@ -124,6 +137,9 @@ class MyApplication {
   }
 }
 ----
+
+[[creating-java-agents]]
+=== 创建 Java Agents
 
 [source,{java_source_attr}]
 ----
