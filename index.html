@@ -4,33 +4,11 @@
   hm.src = "https://hm.baidu.com/hm.js?ae7f1fd4c53f019313f5a1db9b0d4803";
   var s = document.getElementsByTagName("script")[0];
   s.parentNode.insertBefore(hm, s);
-})(); </script> </div> </div> <div class="sect1"> <h2 id="_前言">前言</h2> <div class="sectionbody"> <div class="paragraph"> <p><strong>本文档是 D瓜哥 在学习 <a href="http://bytebuddy.net/#/tutorial">Byte Buddy Tutorial</a> 时随手翻译的。水平有限，难免失误，欢迎随时发生 PR。谢谢！</strong></p> </div> <div class="sect2"> <h3 id="_友情支持">友情支持</h3> <div class="paragraph"> <p>如果您觉得这个笔记对您有所帮助，看在 D瓜哥 码字的辛苦上，请友情支持一下。屌丝逆袭，赢取白富美，走向人生巅峰就靠这个了，😜 😜</p> </div> <table class="tableblock frame-none grid-all spread"> <colgroup> <col style="width: 50%"> <col style="width: 50%"> </colgroup> <tbody> <tr> <td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img alt="支付宝" src="./target/images/images/alipay.jpeg" title="支付宝" width="50%"></span></td> <td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img alt="微信" src="./target/images/images/wxpay.png" title="微信" width="55%"></span></td> </tr> </tbody> </table> </div> <div class="sect2"> <h3 id="_官网及版本库">官网及版本库</h3> <div class="paragraph"> <p>本文档的版本库使用 Git 管理。另外，单独发布阅读版。</p> </div> <div class="dlist"> <dl> <dt class="hdlist1">“地瓜哥”博客网</dt> <dd> <p><a href="http://www.diguage.com/" class="bare">http://www.diguage.com/</a> 。D瓜哥的个人博客。欢迎光临，不过，内容很杂乱，请见谅。不见谅，你来打我啊，😂😂</p> </dd> <dt class="hdlist1">本文档官网</dt> <dd> <p><a href="http://notes.diguage.com/byte-buddy-tutorial/" class="bare">http://notes.diguage.com/byte-buddy-tutorial/</a> 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。</p> </dd> <dt class="hdlist1">本文档版本库</dt> <dd> <p><a href="https://github.com/diguage/byte-buddy-tutorial" class="bare">https://github.com/diguage/byte-buddy-tutorial</a> 。反正也没啥保密可言，版本库分分钟给出。😜</p> </dd> </dl> </div> </div> </div> </div> <div class="sect1"> <h2 id="preliminary">为什么需要在运行时生成代码？</h2> <div class="sectionbody"> <div class="paragraph"> <p>Java 语言带有一套比较严格的类型系统。Java 要求所有变量和对象都有一个确定的类型，并且任何向不兼容类型赋值都会造成一个错误。这些错误通常都会被编译器检查出来，极少情况下会被 Java 运行时检查到，然后抛一个非法类型的错误。如此严格的类型在大多数情况下是比较令人满意的，比如在编写业务应用时。通常，可以以任何模型元素表示其自己的类型这种明确的方式来描述业务域。通过这种方式，我们可以用 Java 构建具有非常强可读性和稳定性的应用，应用中的错误也非常贴近源码。除此之外，Java 严格的类型系统造就 Java 在企业编程中的普及。</p> </div> <div class="paragraph"> <p><em>然而，通过强制其严格的类型系统，Java 强加一些限制，在其他领域限制了语言应用范围。</em> 比如，当写一个通用的库时，这个库将被其他 Java 应用使用，我们通常不能引用任何在用户应用中定义的类型，因为当这个库被编译时，我们还不知道这些类型。为了调用用户为知代码的方法或者访问其属性，Java 类库提供了一套反射 API。使用这套反射 API，我们就可以反省为知类型，进而调用方法或者访问属性。不幸的是，这套反射 API 的用法有两个明显的缺点：</p> </div> <div class="ulist"> <ul> <li> <p>相比硬编码的方法调用，使用 <a href="http://docs.oracle.com/javase/tutorial/reflect/index.html">反射 API 非常慢</a>：</p> </li> <li> <p>反射 API 能绕过类型安全检查：</p> </li> </ul> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Service</span> {
+})(); </script> </div> </div> <div class="sect1"> <h2 id="_前言">前言</h2> <div class="sectionbody"> <div class="paragraph"> <p><strong>本文档是 D瓜哥 在学习 <a href="http://bytebuddy.net/#/tutorial">Byte Buddy Tutorial</a> 时随手翻译的。水平有限，难免失误，欢迎随时发生 PR。谢谢！</strong></p> </div> <div class="sect2"> <h3 id="_友情支持">友情支持</h3> <div class="paragraph"> <p>如果您觉得这个笔记对您有所帮助，看在 D瓜哥 码字的辛苦上，请友情支持一下。屌丝逆袭，赢取白富美，走向人生巅峰就靠这个了，😜 😜</p> </div> <table class="tableblock frame-none grid-all spread"> <colgroup> <col style="width: 50%"> <col style="width: 50%"> </colgroup> <tbody> <tr> <td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img alt="支付宝" src="./target/images/images/alipay.jpeg" title="支付宝" width="50%"></span></td> <td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img alt="微信" src="./target/images/images/wxpay.png" title="微信" width="55%"></span></td> </tr> </tbody> </table> </div> <div class="sect2"> <h3 id="_官网及版本库">官网及版本库</h3> <div class="paragraph"> <p>本文档的版本库使用 Git 管理。另外，单独发布阅读版。</p> </div> <div class="dlist"> <dl> <dt class="hdlist1">“地瓜哥”博客网</dt> <dd> <p><a href="http://www.diguage.com/" class="bare">http://www.diguage.com/</a> 。D瓜哥的个人博客。欢迎光临，不过，内容很杂乱，请见谅。不见谅，你来打我啊，😂😂</p> </dd> <dt class="hdlist1">本文档官网</dt> <dd> <p><a href="http://notes.diguage.com/byte-buddy-tutorial/" class="bare">http://notes.diguage.com/byte-buddy-tutorial/</a> 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。</p> </dd> <dt class="hdlist1">本文档版本库</dt> <dd> <p><a href="https://github.com/diguage/byte-buddy-tutorial" class="bare">https://github.com/diguage/byte-buddy-tutorial</a> 。反正也没啥保密可言，版本库分分钟给出。😜</p> </dd> </dl> </div> </div> </div> </div> <div class="sect1"> <h2 id="preliminary">为什么需要在运行时生成代码？</h2> <div class="sectionbody"> <div class="paragraph"> <p>Java 语言带有一套比较严格的类型系统。Java 要求所有变量和对象都有一个确定的类型，并且任何向不兼容类型赋值都会造成一个错误。这些错误通常都会被编译器检查出来，极少情况下会被 Java 运行时检查到，然后抛一个非法类型的错误。如此严格的类型在大多数情况下是比较令人满意的，比如在编写业务应用时。通常，可以以任何模型元素表示其自己的类型这种明确的方式来描述业务域。通过这种方式，我们可以用 Java 构建具有非常强可读性和稳定性的应用，应用中的错误也非常贴近源码。除此之外，Java 严格的类型系统造就 Java 在企业编程中的普及。</p> </div> <div class="paragraph"> <p><em>然而，通过强制其严格的类型系统，Java 强加一些限制，在其他领域限制了语言应用范围。</em> 比如，当写一个通用的库时，这个库将被其他 Java 应用使用，我们通常不能引用任何在用户应用中定义的类型，因为当这个库被编译时，我们还不知道这些类型。为了调用用户为知代码的方法或者访问其属性，Java 类库提供了一套反射 API。使用这套反射 API，我们就可以反省为知类型，进而调用方法或者访问属性。不幸的是，这套反射 API 的用法有两个明显的缺点：</p> </div> <div class="ulist"> <ul> <li> <p>相比硬编码的方法调用，使用 <a href="http://docs.oracle.com/javase/tutorial/reflect/index.html">反射 API 非常慢</a>：首先，需要执行一个相当昂贵的方法查找来获取描述特定方法的对象。同时，当一个方法被调用时，这要求 Java 虚拟机去运行本地代码，相比直接调用，这需要一个很长的运行时间。然而，现代 Java 虚拟机知道一个被称为“类型膨胀”的概念：基于 JNI 的方法调用会被动态生成的字节码给替换掉，而这些方法调用的字节码被注入到一个动态生成的类中。（即使 Java 虚拟机自身也使用代码生成！）毕竟，Java 的类型膨胀系统仍存在生成非常一般的代码的缺点，例如，仅能使用基本类型的装箱类型以至于性能缺陷不能完全解决。</p> </li> <li> <p>反射 API 能绕过类型安全检查：即使 Java 虚拟机支持通过反射进行代码调用，但反射 API 自身并不是类型安全的。当编写一个类库时，只要我们不需要把反射 API 暴露给库的用户，就不会有什么大问题。毕竟，当我们编译类库时，我们不知道用户代码，而且也不能校验我们的库与用户类型是否匹配。</p> </li> </ul> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Service</span> {
   <span class="type">void</span> deleteEverything() {
     <span class="comment">// delete everything ...</span>
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-</pre></td>
-  <td class="code"><pre><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
 <span class="annotation">@interface</span> Secured {
   <span class="predefined-type">String</span> user();
 }
@@ -41,20 +19,7 @@
 
 <span class="type">interface</span> <span class="class">Framework</span> {
   &lt;T&gt; T secure(<span class="predefined-type">Class</span>&lt;T&gt; type);
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">SecuredService</span> <span class="directive">extends</span> Service {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">SecuredService</span> <span class="directive">extends</span> Service {
   <span class="annotation">@Override</span>
   <span class="type">void</span> deleteEverything() {
     <span class="keyword">if</span>(UserHolder.user.equals(<span class="string"><span class="delimiter">&quot;</span><span class="content">ADMIN</span><span class="delimiter">&quot;</span></span>)) {
@@ -63,20 +28,7 @@
       <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">IllegalStateException</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">Not authorized</span><span class="delimiter">&quot;</span></span>);
     }
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">HardcodedFrameworkImpl</span> <span class="directive">implements</span> Framework {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">HardcodedFrameworkImpl</span> <span class="directive">implements</span> Framework {
   <span class="annotation">@Override</span>
   <span class="directive">public</span> &lt;T&gt; T secure(<span class="predefined-type">Class</span>&lt;T&gt; type) {
     <span class="keyword">if</span>(type == Service.class) {
@@ -85,37 +37,12 @@
       <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">IllegalArgumentException</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">Unknown: </span><span class="delimiter">&quot;</span></span> + type);
     }
   }
-}</pre></td>
-</table></code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="creating-a-class">创建一个类</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre>DynamicType.Unloaded&lt;?&gt; dynamicType = <span class="keyword">new</span> ByteBuddy()
+}</code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="creating-a-class">创建一个类</h2> <div class="sectionbody"> <div class="paragraph"> <p>任何一个由 Byte Buddy 创建的类型都是通过 <code>ByteBuddy</code> 类的实例来完成的。通过简单地调用 <code>new ByteBuddy()</code> 就可以创建一个新实例，然后就可以出发了。希望你使用一个集成开发环境，这样在调用一个给定实例的方法时就能得到相应的提示。这样，你的集成开发环境就会引导你完成相应的方法调用，防止手动在 Byte Buddy 文档中查阅某个类的 API。正如之前所说，Byte Buddy 提供了一个领域特定语言，这样就可以尽可能地提高人类可读性。集成开发环境的提示在大部分情况下会指引你到正确的方向。说的够多了，让我们在 Java 编程环境中创建第一个类吧：</p> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">DynamicType.Unloaded&lt;?&gt; dynamicType = <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
-  .make();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre>DynamicType.Unloaded&lt;?&gt; dynamicType = <span class="keyword">new</span> ByteBuddy()
+  .make();</code></pre> </div> </div> <div class="paragraph"> <p>正如前面所设想的，上面的示例代码会创建一个继承至 <code>Object</code> 类型的类。这个动态创建的类型与直接扩展 <code>Object</code> 并且没有实现任何方法、属性和构造函数的类型是等价的。你可能已经注意到，我们都没有命名动态生成的类型，通常在定义 Java 类时却是必须的。当然，你也可以很容易地明确地命名这个类型：</p> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">DynamicType.Unloaded&lt;?&gt; dynamicType = <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .name(<span class="string"><span class="delimiter">&quot;</span><span class="content">example.Type</span><span class="delimiter">&quot;</span></span>)
-  .make();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td>
-  <td class="code"><pre>DynamicType.Unloaded&lt;?&gt; dynamicType = <span class="keyword">new</span> ByteBuddy()
+  .make();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">DynamicType.Unloaded&lt;?&gt; dynamicType = <span class="keyword">new</span> ByteBuddy()
   .with(<span class="keyword">new</span> NamingStrategy.AbstractBase() {
     <span class="annotation">@Override</span>
     <span class="directive">public</span> <span class="predefined-type">String</span> subclass(TypeDescription superClass) {
@@ -123,108 +50,34 @@
     }
   })
   .subclass(<span class="predefined-type">Object</span>.class)
-  .make();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre>ByteBuddy byteBuddy = <span class="keyword">new</span> ByteBuddy();
+  .make();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">ByteBuddy byteBuddy = <span class="keyword">new</span> ByteBuddy();
 byteBuddy.withNamingStrategy(<span class="keyword">new</span> NamingStrategy.SuffixingRandom(<span class="string"><span class="delimiter">&quot;</span><span class="content">suffix</span><span class="delimiter">&quot;</span></span>));
-DynamicType.Unloaded&lt;?&gt; dynamicType = byteBuddy.subclass(<span class="predefined-type">Object</span>.class).make();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Foo</span> {
+DynamicType.Unloaded&lt;?&gt; dynamicType = byteBuddy.subclass(<span class="predefined-type">Object</span>.class).make();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Foo</span> {
   <span class="predefined-type">String</span> bar() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>; }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Foo</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Foo</span> {
   <span class="predefined-type">String</span> bar() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">foo</span><span class="delimiter">&quot;</span></span> + bar<span class="error">$</span>original(); }
   <span class="directive">private</span> <span class="predefined-type">String</span> bar<span class="error">$</span>original() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>; }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy().subclass(Foo.class)
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy().subclass(Foo.class)
 <span class="keyword">new</span> ByteBuddy().redefine(Foo.class)
-<span class="keyword">new</span> ByteBuddy().rebase(Foo.class)</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-</pre></td>
-  <td class="code"><pre><span class="predefined-type">Class</span>&lt;?&gt; type = <span class="keyword">new</span> ByteBuddy()
+<span class="keyword">new</span> ByteBuddy().rebase(Foo.class)</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="predefined-type">Class</span>&lt;?&gt; type = <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .make()
   .load(getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
-  .getLoaded();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Foo</span> {
+  .getLoaded();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Foo</span> {
   <span class="predefined-type">String</span> m() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">foo</span><span class="delimiter">&quot;</span></span>; }
 }
 
 <span class="type">class</span> <span class="class">Bar</span> {
   <span class="predefined-type">String</span> m() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>; }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-</pre></td>
-  <td class="code"><pre>ByteBuddyAgent.install();
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">ByteBuddyAgent.install();
 Foo foo = <span class="keyword">new</span> Foo();
 <span class="keyword">new</span> ByteBuddy()
   .redefine(Bar.class)
   .name(Foo.class.getName())
   .make()
   .load(Foo.class.getClassLoader(), ClassReloadingStrategy.fromInstalledAgent());
-assertThat(foo.m(), is(<span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>));</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-</pre></td>
-  <td class="code"><pre><span class="keyword">package</span> <span class="namespace">foo</span>;
-<span class="type">class</span> <span class="class">Bar</span> { }</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">MyApplication</span> {
+assertThat(foo.m(), is(<span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>));</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">foo</span>;
+<span class="type">class</span> <span class="class">Bar</span> { }</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">MyApplication</span> {
   <span class="directive">public</span> <span class="directive">static</span> <span class="type">void</span> main(<span class="predefined-type">String</span><span class="type">[]</span> args) {
     TypePool typePool = TypePool.Default.ofClassPath();
     <span class="keyword">new</span> ByteBuddy()
@@ -235,25 +88,7 @@ assertThat(foo.m(), is(<span class="string"><span class="delimiter">&quot;</span
       .load(<span class="predefined-type">ClassLoader</span>.getSystemClassLoader());
     assertThat(Bar.class.getDeclaredField(<span class="string"><span class="delimiter">&quot;</span><span class="content">qux</span><span class="delimiter">&quot;</span></span>), notNullValue());
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">ToStringAgent</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">ToStringAgent</span> {
   <span class="directive">public</span> <span class="directive">static</span> <span class="type">void</span> premain(<span class="predefined-type">String</span> arguments, <span class="predefined-type">Instrumentation</span> instrumentation) {
     <span class="keyword">new</span> AgentBuilder.Default()
         .type(isAnnotatedWith(ToString.class))
@@ -267,37 +102,14 @@ assertThat(foo.m(), is(<span class="string"><span class="delimiter">&quot;</span
       }
     }).installOn(instrumentation);
   }
-}</pre></td>
-</table></code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="fields-and-methods">属性和方法</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-</pre></td>
-  <td class="code"><pre><span class="predefined-type">String</span> toString = <span class="keyword">new</span> ByteBuddy()
+}</code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="fields-and-methods">属性和方法</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="predefined-type">String</span> toString = <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .name(<span class="string"><span class="delimiter">&quot;</span><span class="content">example.Type</span><span class="delimiter">&quot;</span></span>)
   .make()
   .load(getClass().getClassLoader())
   .getLoaded()
   .newInstance() <span class="comment">// Java reflection API</span>
-  .toString();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td>
-  <td class="code"><pre><span class="predefined-type">String</span> toString = <span class="keyword">new</span> ByteBuddy()
+  .toString();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="predefined-type">String</span> toString = <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .name(<span class="string"><span class="delimiter">&quot;</span><span class="content">example.Type</span><span class="delimiter">&quot;</span></span>)
   .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">toString</span><span class="delimiter">&quot;</span></span>)).intercept(FixedValue.value(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello World!</span><span class="delimiter">&quot;</span></span>))
@@ -305,29 +117,7 @@ assertThat(foo.m(), is(<span class="string"><span class="delimiter">&quot;</span
   .load(getClass().getClassLoader())
   .getLoaded()
   .newInstance()
-  .toString();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-</pre></td>
-  <td class="code"><pre>named(<span class="string"><span class="delimiter">&quot;</span><span class="content">toString</span><span class="delimiter">&quot;</span></span>).and(returns(<span class="predefined-type">String</span>.class)).and(takesArguments(<span class="integer">0</span>))</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Foo</span> {
+  .toString();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">named(<span class="string"><span class="delimiter">&quot;</span><span class="content">toString</span><span class="delimiter">&quot;</span></span>).and(returns(<span class="predefined-type">String</span>.class)).and(takesArguments(<span class="integer">0</span>))</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Foo</span> {
   <span class="directive">public</span> <span class="predefined-type">String</span> bar() { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
   <span class="directive">public</span> <span class="predefined-type">String</span> foo() { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
   <span class="directive">public</span> <span class="predefined-type">String</span> foo(<span class="predefined-type">Object</span> o) { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
@@ -341,38 +131,10 @@ Foo dynamicFoo = <span class="keyword">new</span> ByteBuddy()
   .make()
   .load(getClass().getClassLoader())
   .getLoaded()
-  .newInstance();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy()
+  .newInstance();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(Foo.class)
   .method(isDeclaredBy(Foo.class)).intercept(FixedValue.value(<span class="integer">0</span>))
-  .make();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Source</span> {
+  .make();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Source</span> {
   <span class="directive">public</span> <span class="predefined-type">String</span> hello(<span class="predefined-type">String</span> name) { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
 }
 
@@ -389,55 +151,11 @@ Foo dynamicFoo = <span class="keyword">new</span> ByteBuddy()
   .load(getClass().getClassLoader())
   .getLoaded()
   .newInstance()
-  .hello(<span class="string"><span class="delimiter">&quot;</span><span class="content">World</span><span class="delimiter">&quot;</span></span>);</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Target</span> {
+  .hello(<span class="string"><span class="delimiter">&quot;</span><span class="content">World</span><span class="delimiter">&quot;</span></span>);</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Target</span> {
   <span class="directive">public</span> <span class="directive">static</span> <span class="predefined-type">String</span> intercept(<span class="predefined-type">String</span> name) { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">Hello </span><span class="delimiter">&quot;</span></span> + name + <span class="string"><span class="delimiter">&quot;</span><span class="content">!</span><span class="delimiter">&quot;</span></span>; }
   <span class="directive">public</span> <span class="directive">static</span> <span class="predefined-type">String</span> intercept(<span class="type">int</span> i) { <span class="keyword">return</span> <span class="predefined-type">Integer</span>.toString(i); }
   <span class="directive">public</span> <span class="directive">static</span> <span class="predefined-type">String</span> intercept(<span class="predefined-type">Object</span> o) { <span class="keyword">return</span> o.toString(); }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-</pre></td>
-  <td class="code"><pre><span class="type">void</span> foo(<span class="predefined-type">Object</span> o1, <span class="predefined-type">Object</span> o2)</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-</pre></td>
-  <td class="code"><pre><span class="type">void</span> foo(<span class="annotation">@Argument</span>(<span class="integer">0</span>) <span class="predefined-type">Object</span> o1, <span class="annotation">@Argument</span>(<span class="integer">1</span>) <span class="predefined-type">Object</span> o2)</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">MemoryDatabase</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">void</span> foo(<span class="predefined-type">Object</span> o1, <span class="predefined-type">Object</span> o2)</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">void</span> foo(<span class="annotation">@Argument</span>(<span class="integer">0</span>) <span class="predefined-type">Object</span> o1, <span class="annotation">@Argument</span>(<span class="integer">1</span>) <span class="predefined-type">Object</span> o2)</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">MemoryDatabase</span> {
   <span class="directive">public</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; load(<span class="predefined-type">String</span> info) {
     <span class="keyword">return</span> <span class="predefined-type">Arrays</span>.asList(info + <span class="string"><span class="delimiter">&quot;</span><span class="content">: foo</span><span class="delimiter">&quot;</span></span>, info + <span class="string"><span class="delimiter">&quot;</span><span class="content">: bar</span><span class="delimiter">&quot;</span></span>);
   }
@@ -461,30 +179,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   .make()
   .load(getClass().getClassLoader())
   .getLoaded()
-  .newInstance();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">LoggingMemoryDatabase</span> <span class="directive">extends</span> MemoryDatabase {
+  .newInstance();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">LoggingMemoryDatabase</span> <span class="directive">extends</span> MemoryDatabase {
 
   <span class="directive">private</span> <span class="type">class</span> <span class="class">LoadMethodSuperCall</span> <span class="directive">implements</span> <span class="predefined-type">Callable</span> {
 
@@ -503,20 +198,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   <span class="directive">public</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; load(<span class="predefined-type">String</span> info) {
     <span class="keyword">return</span> LoggerInterceptor.log(<span class="keyword">new</span> LoadMethodSuperCall(info));
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">ChangingLoggerInterceptor</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">ChangingLoggerInterceptor</span> {
   <span class="directive">public</span> <span class="directive">static</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; log(<span class="predefined-type">String</span> info, <span class="annotation">@Super</span> MemoryDatabase zuper) {
     <span class="predefined-type">System</span>.out.println(<span class="string"><span class="delimiter">&quot;</span><span class="content">Calling database</span><span class="delimiter">&quot;</span></span>);
     <span class="keyword">try</span> {
@@ -525,67 +207,18 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
       <span class="predefined-type">System</span>.out.println(<span class="string"><span class="delimiter">&quot;</span><span class="content">Returned from database</span><span class="delimiter">&quot;</span></span>);
     }
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Loop</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Loop</span> {
   <span class="directive">public</span> <span class="predefined-type">String</span> loop(<span class="predefined-type">String</span> value) { <span class="keyword">return</span> value; }
   <span class="directive">public</span> <span class="type">int</span> loop(<span class="type">int</span> value) { <span class="keyword">return</span> value; }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">Interceptor</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Interceptor</span> {
   <span class="annotation">@RuntimeType</span>
   <span class="directive">public</span> <span class="directive">static</span> <span class="predefined-type">Object</span> intercept(<span class="annotation">@RuntimeType</span> <span class="predefined-type">Object</span> value) {
     <span class="predefined-type">System</span>.out.println(<span class="string"><span class="delimiter">&quot;</span><span class="content">Invoked method with: </span><span class="delimiter">&quot;</span></span> + value);
     <span class="keyword">return</span> value;
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre><span class="type">interface</span> <span class="class">Forwarder</span>&lt;T, S&gt; {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">interface</span> <span class="class">Forwarder</span>&lt;T, S&gt; {
   T to(S target);
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">ForwardingLoggerInterceptor</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">ForwardingLoggerInterceptor</span> {
 
   <span class="directive">private</span> <span class="directive">final</span> MemoryDatabase memoryDatabase; <span class="comment">// constructor omitted</span>
 
@@ -607,96 +240,30 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   .make()
   .load(getClass().getClassLoader())
   .getLoaded()
-  .newInstance();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy()
+  .newInstance();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
-  .make()</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy()
+  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class, ConstructorStrategy.Default.IMITATE_SUPER_TYPE)
-  .make()</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-</pre></td>
-  <td class="code"><pre><span class="type">interface</span> <span class="class">First</span> {
+  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">interface</span> <span class="class">First</span> {
   <span class="keyword">default</span> <span class="predefined-type">String</span> qux() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">FOO</span><span class="delimiter">&quot;</span></span>; }
 }
 
 <span class="type">interface</span> <span class="class">Second</span> {
   <span class="keyword">default</span> <span class="predefined-type">String</span> qux() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">BAR</span><span class="delimiter">&quot;</span></span>; }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy(ClassFileVersion.JAVA_V8)
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy(ClassFileVersion.JAVA_V8)
   .subclass(<span class="predefined-type">Object</span>.class)
   .implement(First.class)
   .implement(Second.class)
   .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">qux</span><span class="delimiter">&quot;</span></span>)).intercept(DefaultMethodCall.prioritize(First.class))
-  .make()</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-</pre></td>
-  <td class="code"><pre><span class="directive">public</span> <span class="type">class</span> <span class="class">SampleClass</span> {
+  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">SampleClass</span> {
   <span class="directive">public</span> SampleClass(<span class="type">int</span> unusedValue) {
     <span class="local-variable">super</span>();
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy()
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
   .defineConstructor(<span class="predefined-type">Arrays</span>.&lt;<span class="predefined-type">Class</span>&lt;?&gt;&gt;asList(<span class="type">int</span>.class), <span class="predefined-type">Visibility</span>.PUBLIC)
   .intercept(MethodCall.invoke(<span class="predefined-type">Object</span>.class.getDeclaredConstructor()))
-  .make()</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">UserType</span> {
+  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">UserType</span> {
   <span class="directive">public</span> <span class="predefined-type">String</span> doSomething() { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
 }
 
@@ -711,19 +278,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
 
 <span class="type">interface</span> <span class="class">InstanceCreator</span> {
   <span class="predefined-type">Object</span> makeInstance();
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td>
-  <td class="code"><pre><span class="predefined-type">Class</span>&lt;? <span class="directive">extends</span> UserType&gt; dynamicUserType = <span class="keyword">new</span> ByteBuddy()
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="predefined-type">Class</span>&lt;? <span class="directive">extends</span> UserType&gt; dynamicUserType = <span class="keyword">new</span> ByteBuddy()
   .subclass(UserType.class)
     .method(not(isDeclaredBy(<span class="predefined-type">Object</span>.class)))
     .intercept(MethodDelegation.toField(<span class="string"><span class="delimiter">&quot;</span><span class="content">interceptor</span><span class="delimiter">&quot;</span></span>))
@@ -731,35 +286,13 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   .implement(InterceptionAccessor.class).intercept(FieldAccessor.ofBeanProperty())
   .make()
   .load(getClass().getClassLoader())
-  .getLoaded();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-</pre></td>
-  <td class="code"><pre>InstanceCreator factory = <span class="keyword">new</span> ByteBuddy()
+  .getLoaded();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">InstanceCreator factory = <span class="keyword">new</span> ByteBuddy()
   .subclass(InstanceCreator.class)
     .method(not(isDeclaredBy(<span class="predefined-type">Object</span>.class)))
     .intercept(MethodDelegation.construct(dynamicUserType))
   .make()
   .load(dynamicUserType.getClassLoader())
-  .getLoaded().newInstance();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">HelloWorldInterceptor</span> <span class="directive">implements</span> Interceptor {
+  .getLoaded().newInstance();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">HelloWorldInterceptor</span> <span class="directive">implements</span> Interceptor {
   <span class="annotation">@Override</span>
   <span class="directive">public</span> <span class="predefined-type">String</span> doSomethingElse() {
     <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">Hello World!</span><span class="delimiter">&quot;</span></span>;
@@ -767,24 +300,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
 }
 
 UserType userType = (UserType) factory.makeInstance();
-((InterceptionAccessor) userType).setInterceptor(<span class="keyword">new</span> HelloWorldInterceptor());</pre></td>
-</table></code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="annotations">注解</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-</pre></td>
-  <td class="code"><pre><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+((InterceptionAccessor) userType).setInterceptor(<span class="keyword">new</span> HelloWorldInterceptor());</code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="annotations">注解</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
 <span class="annotation">@interface</span> RuntimeDefinition { }
 
 <span class="type">class</span> <span class="class">RuntimeDefinitionImpl</span> <span class="directive">implements</span> RuntimeDefinition {
@@ -797,37 +313,14 @@ UserType userType = (UserType) factory.makeInstance();
 <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .annotateType(<span class="keyword">new</span> RuntimeDefinitionImpl())
-  .make();</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy()
+  .make();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
     .annotateType(<span class="keyword">new</span> RuntimeDefinitionImpl())
   .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">toString</span><span class="delimiter">&quot;</span></span>))
     .intercept(SuperMethodCall.INSTANCE)
     .annotateMethod(<span class="keyword">new</span> RuntimeDefinitionImpl())
   .defineField(<span class="string"><span class="delimiter">&quot;</span><span class="content">foo</span><span class="delimiter">&quot;</span></span>, <span class="predefined-type">Object</span>.class)
-    .annotateField(<span class="keyword">new</span> RuntimeDefinitionImpl())</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">AnnotatedMethod</span> {
+    .annotateField(<span class="keyword">new</span> RuntimeDefinitionImpl())</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">AnnotatedMethod</span> {
   <span class="annotation">@SomeAnnotation</span>
   <span class="type">void</span> bar() { }
 }
@@ -835,46 +328,13 @@ UserType userType = (UserType) factory.makeInstance();
   .subclass(AnnotatedMethod.class)
   .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>))
   .intercept(StubMethod.INSTANCE)
-  .attribute(MethodAttributeAppender.ForInstrumentedMethod.INSTANCE)</pre></td>
-</table></code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="custom-instrumentation">定制化仪表</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre>LDC     <span class="integer">10</span>  <span class="comment">// stack contains 10</span>
+  .attribute(MethodAttributeAppender.ForInstrumentedMethod.INSTANCE)</code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="custom-instrumentation">定制化仪表</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java">LDC     <span class="integer">10</span>  <span class="comment">// stack contains 10</span>
 LDC     <span class="integer">50</span>  <span class="comment">// stack contains 10, 50</span>
 IADD        <span class="comment">// stack contains 60</span>
-IRETURN     <span class="comment">// stack is empty</span></pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre><span class="integer">12</span> <span class="octal">00</span> <span class="octal">01</span>
+IRETURN     <span class="comment">// stack is empty</span></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="integer">12</span> <span class="octal">00</span> <span class="octal">01</span>
 <span class="integer">12</span> <span class="octal">00</span> <span class="octal">02</span>
 <span class="integer">60</span>
-AC</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-</pre></td>
-  <td class="code"><pre><span class="type">enum</span> IntegerSum <span class="directive">implements</span> StackManipulation {
+AC</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">enum</span> IntegerSum <span class="directive">implements</span> StackManipulation {
 
   INSTANCE; <span class="comment">// singleton</span>
 
@@ -889,31 +349,7 @@ AC</pre></td>
     methodVisitor.visitInsn(Opcodes.IADD);
     <span class="keyword">return</span> <span class="keyword">new</span> Size(-<span class="integer">1</span>, <span class="integer">0</span>);
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-</pre></td>
-  <td class="code"><pre><span class="type">enum</span> SumMethod <span class="directive">implements</span> ByteCodeAppender {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">enum</span> SumMethod <span class="directive">implements</span> ByteCodeAppender {
 
   INSTANCE; <span class="comment">// singleton</span>
 
@@ -933,24 +369,7 @@ AC</pre></td>
     <span class="keyword">return</span> <span class="keyword">new</span> Size(operandStackSize.getMaximalSize(),
                     instrumentedMethod.getStackSize());
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-</pre></td>
-  <td class="code"><pre><span class="type">enum</span> SumImplementation <span class="directive">implements</span> Implementation {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">enum</span> SumImplementation <span class="directive">implements</span> Implementation {
 
   INSTANCE; <span class="comment">// singleton</span>
 
@@ -963,19 +382,7 @@ AC</pre></td>
   <span class="directive">public</span> ByteCodeAppender appender(<span class="predefined-type">Target</span> implementationTarget) {
     <span class="keyword">return</span> SumMethod.INSTANCE;
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td>
-  <td class="code"><pre><span class="directive">abstract</span> <span class="type">class</span> <span class="class">SumExample</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="directive">abstract</span> <span class="type">class</span> <span class="class">SumExample</span> {
   <span class="directive">public</span> <span class="directive">abstract</span> <span class="type">int</span> calculate();
 }
 
@@ -983,29 +390,7 @@ AC</pre></td>
   .subclass(SumExample.class)
     .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">calculate</span><span class="delimiter">&quot;</span></span>))
     .intercept(SumImplementation.INSTANCE)
-  .make()</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-</pre></td>
-  <td class="code"><pre><span class="type">enum</span> ToStringAssigner <span class="directive">implements</span> Assigner {
+  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">enum</span> ToStringAssigner <span class="directive">implements</span> Assigner {
 
   INSTANCE; <span class="comment">// singleton</span>
 
@@ -1023,60 +408,16 @@ AC</pre></td>
       <span class="keyword">return</span> StackManipulation.Illegal.INSTANCE;
     }
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-</pre></td>
-  <td class="code"><pre><span class="keyword">new</span> ByteBuddy()
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">toString</span><span class="delimiter">&quot;</span></span>))
     .intercept(FixedValue.value(<span class="integer">42</span>)
       .withAssigner(<span class="keyword">new</span> PrimitiveTypeAwareAssigner(ToStringAssigner.INSTANCE),
                     Assigner.Typing.STATIC))
-  .make()</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-</pre></td>
-  <td class="code"><pre><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
 <span class="annotation">@interface</span> StringValue {
   <span class="predefined-type">String</span> value();
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-</pre></td>
-  <td class="code"><pre><span class="type">enum</span> StringValueBinder
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">enum</span> StringValueBinder
     <span class="directive">implements</span> TargetMethodAnnotationDrivenBinder.ParameterBinder&lt;StringValue&gt; {
 
   INSTANCE; <span class="comment">// singleton</span>
@@ -1099,23 +440,7 @@ AC</pre></td>
     StackManipulation constant = <span class="keyword">new</span> TextConstant(annotation.loadSilent().value());
     <span class="keyword">return</span> <span class="keyword">new</span> MethodDelegationBinder.ParameterBinding.Anonymous(constant);
   }
-}</pre></td>
-</table></code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-</pre></td>
-  <td class="code"><pre><span class="type">class</span> <span class="class">ToStringInterceptor</span> {
+}</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">ToStringInterceptor</span> {
   <span class="directive">public</span> <span class="directive">static</span> <span class="predefined-type">String</span> makeString(<span class="annotation">@StringValue</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello!</span><span class="delimiter">&quot;</span></span>) <span class="predefined-type">String</span> value) {
     <span class="keyword">return</span> value;
   }
@@ -1127,8 +452,7 @@ AC</pre></td>
     .intercept(MethodDelegation.withDefaultConfiguration()
       .withBinders(StringValueBinder.INSTANCE)
       .to(ToStringInterceptor.class))
-  .make()</pre></td>
-</table></code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="license">附录 A: 版权声明</h2> <div class="sectionbody"> <pre>
+  .make()</code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="license">附录 A: 版权声明</h2> <div class="sectionbody"> <pre>
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -1330,4 +654,4 @@ AC</pre></td>
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-</pre> </div> </div> </div> <div id="footer"> <div id="footer-text"> V 0.1.0<br> 最后更新时间 2017-07-24 22:45:01 CST </div> </div> 
+</pre> </div> </div> </div> <div id="footer"> <div id="footer-text"> V 0.1.0<br> 最后更新时间 2017-07-25 15:04:35 CST </div> </div> 
