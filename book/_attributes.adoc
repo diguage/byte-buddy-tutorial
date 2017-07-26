@@ -38,6 +38,7 @@
 
 :var_width: 100%
 
-:source_attr: linenums,subs="attributes,verbatim"
+:source_attr: subs="attributes,verbatim"
+// :source_attr: linenums,subs="attributes,verbatim"
 
-:java_source_attr: java,linenums,subs="attributes,verbatim"
+:java_source_attr: java,{source_attr}
