@@ -1,4 +1,4 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <!--[if IE]><meta content="IE=edge" http-equiv="X-UA-Compatible"><![endif]--> <meta content="width=device-width,initial-scale=1" name="viewport"> <meta content="Asciidoctor 1.5.6.1" name="generator"> <meta content="Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。" name="description"> <meta content="Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机" name="keywords"> <meta content="D瓜哥" name="author"> <title>Byte Buddy 教程 Alpha</title> <link href="//fonts.proxy.ustclug.org/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700" rel="stylesheet"> <link href="./target/styles/asciidoctor.css" rel="stylesheet"> <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"> <link href="./target/styles/coderay-asciidoctor.css" rel="stylesheet"> </head> <body class="toc2 book toc-left"> <div id="header"> <h1>Byte Buddy 教程 <sup>Alpha</sup></h1> <div class="details"> <span class="author" id="author">D瓜哥</span><br> <span class="email" id="email"><a href="http://www.diguage.com/" class="bare">http://www.diguage.com/</a></span><br> <span id="revnumber">v 0.1.0,</span> <span id="revdate">2017-07-24</span> </div> <div class="toc2" id="toc"> <div id="toctitle">目录</div> <ul class="sectlevel1"> <li><a href="#_前言">前言</a> <ul class="sectlevel2"> <li><a href="#_友情支持">友情支持</a></li> <li><a href="#_官网及版本库">官网及版本库</a></li> </ul> </li> <li><a href="#preliminary">为什么需要在运行时生成代码？</a></li> <li><a href="#creating-a-class">创建一个类</a> <ul class="sectlevel2"> <li><a href="#domain-specific-language-and-immutability">领域特定语言和不变性</a></li> <li><a href="#loading-a-class">加载类</a></li> <li><a href="#reloading-a-class">重新加载类</a></li> <li><a href="#working-with-unloaded-classes">操作没有加载的类</a></li> <li><a href="#creating-java-agents">创建 Java Agents</a></li> </ul> </li> <li><a href="#fields-and-methods">属性和方法</a></li> <li><a href="#annotations">注解</a></li> <li><a href="#custom-instrumentation">定制化仪表</a></li> <li><a href="#license">附录 A: 版权声明</a></li> </ul> </div> </div> <div id="content"> <div id="preamble"> <div class="sectionbody"> <script> var _hmt = _hmt || [];
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <!--[if IE]><meta content="IE=edge" http-equiv="X-UA-Compatible"><![endif]--> <meta content="width=device-width,initial-scale=1" name="viewport"> <meta content="Asciidoctor 1.5.6.1" name="generator"> <meta content="Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。" name="description"> <meta content="Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机" name="keywords"> <meta content="D瓜哥" name="author"> <title>Byte Buddy 教程 Alpha</title> <link href="//fonts.proxy.ustclug.org/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700" rel="stylesheet"> <link href="./target/styles/asciidoctor.css" rel="stylesheet"> <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"> <link href="./target/styles/coderay-asciidoctor.css" rel="stylesheet"> </head> <body class="toc2 book toc-left"> <div id="header"> <h1>Byte Buddy 教程 <sup>Alpha</sup></h1> <div class="details"> <span class="author" id="author">D瓜哥</span><br> <span class="email" id="email"><a href="http://www.diguage.com/" class="bare">http://www.diguage.com/</a></span><br> <span id="revnumber">v 0.1.0,</span> <span id="revdate">2017-07-24</span> </div> <div class="toc2" id="toc"> <div id="toctitle">目录</div> <ul class="sectlevel1"> <li><a href="#_前言">前言</a> <ul class="sectlevel2"> <li><a href="#_友情支持">友情支持</a></li> <li><a href="#_官网及版本库">官网及版本库</a></li> </ul> </li> <li><a href="#preliminary">为什么需要在运行时生成代码？</a></li> <li><a href="#creating-a-class">创建一个类</a> <ul class="sectlevel2"> <li><a href="#domain-specific-language-and-immutability">领域特定语言和不变性</a></li> <li><a href="#loading-a-class">加载类</a></li> <li><a href="#reloading-a-class">重新加载类</a></li> <li><a href="#working-with-unloaded-classes">操作没有加载的类</a></li> <li><a href="#creating-java-agents">创建 Java Agents</a></li> </ul> </li> <li><a href="#fields-and-methods">属性和方法</a> <ul class="sectlevel2"> <li><a href="#delegating-a-method-call">委托方法调用</a></li> <li><a href="#calling-a-super-method">调用超类方法</a></li> <li><a href="#calling-a-default-method">调用默认方法</a></li> <li><a href="#calling-a-specific-method">调用特定方法</a></li> <li><a href="#accessing-fields">访问属性</a></li> <li><a href="#miscellaneous">杂项</a></li> </ul> </li> <li><a href="#annotations">注解</a></li> <li><a href="#custom-instrumentation">定制化仪表</a></li> <li><a href="#license">附录 A: 版权声明</a></li> </ul> </div> </div> <div id="content"> <div id="preamble"> <div class="sectionbody"> <script> var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
   hm.src = "https://hm.baidu.com/hm.js?ae7f1fd4c53f019313f5a1db9b0d4803";
@@ -134,7 +134,7 @@ Foo dynamicFoo = <span class="keyword">new</span> ByteBuddy()
   .newInstance();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(Foo.class)
   .method(isDeclaredBy(Foo.class)).intercept(FixedValue.value(<span class="integer">0</span>))
-  .make();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Source</span> {
+  .make();</code></pre> </div> </div> <div class="sect2"> <h3 id="delegating-a-method-call">委托方法调用</h3> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">Source</span> {
   <span class="directive">public</span> <span class="predefined-type">String</span> hello(<span class="predefined-type">String</span> name) { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
 }
 
@@ -240,11 +240,11 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   .make()
   .load(getClass().getClassLoader())
   .getLoaded()
-  .newInstance();</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
+  .newInstance();</code></pre> </div> </div> </div> <div class="sect2"> <h3 id="calling-a-super-method">调用超类方法</h3> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class)
   .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class, ConstructorStrategy.Default.IMITATE_SUPER_TYPE)
-  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">interface</span> <span class="class">First</span> {
+  .make()</code></pre> </div> </div> </div> <div class="sect2"> <h3 id="calling-a-default-method">调用默认方法</h3> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">interface</span> <span class="class">First</span> {
   <span class="keyword">default</span> <span class="predefined-type">String</span> qux() { <span class="keyword">return</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">FOO</span><span class="delimiter">&quot;</span></span>; }
 }
 
@@ -255,7 +255,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   .implement(First.class)
   .implement(Second.class)
   .method(named(<span class="string"><span class="delimiter">&quot;</span><span class="content">qux</span><span class="delimiter">&quot;</span></span>)).intercept(DefaultMethodCall.prioritize(First.class))
-  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">SampleClass</span> {
+  .make()</code></pre> </div> </div> </div> <div class="sect2"> <h3 id="calling-a-specific-method">调用特定方法</h3> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">SampleClass</span> {
   <span class="directive">public</span> SampleClass(<span class="type">int</span> unusedValue) {
     <span class="local-variable">super</span>();
   }
@@ -263,7 +263,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
   .subclass(<span class="predefined-type">Object</span>.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
   .defineConstructor(<span class="predefined-type">Arrays</span>.&lt;<span class="predefined-type">Class</span>&lt;?&gt;&gt;asList(<span class="type">int</span>.class), <span class="predefined-type">Visibility</span>.PUBLIC)
   .intercept(MethodCall.invoke(<span class="predefined-type">Object</span>.class.getDeclaredConstructor()))
-  .make()</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">UserType</span> {
+  .make()</code></pre> </div> </div> </div> <div class="sect2"> <h3 id="accessing-fields">访问属性</h3> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">UserType</span> {
   <span class="directive">public</span> <span class="predefined-type">String</span> doSomething() { <span class="keyword">return</span> <span class="predefined-constant">null</span>; }
 }
 
@@ -300,7 +300,7 @@ MemoryDatabase loggingDatabase = <span class="keyword">new</span> ByteBuddy()
 }
 
 UserType userType = (UserType) factory.makeInstance();
-((InterceptionAccessor) userType).setInterceptor(<span class="keyword">new</span> HelloWorldInterceptor());</code></pre> </div> </div> </div> </div> <div class="sect1"> <h2 id="annotations">注解</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+((InterceptionAccessor) userType).setInterceptor(<span class="keyword">new</span> HelloWorldInterceptor());</code></pre> </div> </div> </div> <div class="sect2"> <h3 id="miscellaneous">杂项</h3> </div> </div> </div> <div class="sect1"> <h2 id="annotations">注解</h2> <div class="sectionbody"> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
 <span class="annotation">@interface</span> RuntimeDefinition { }
 
 <span class="type">class</span> <span class="class">RuntimeDefinitionImpl</span> <span class="directive">implements</span> RuntimeDefinition {
@@ -654,4 +654,4 @@ AC</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-</pre> </div> </div> </div> <div id="footer"> <div id="footer-text"> V 0.1.0<br> 最后更新时间 2017-07-26 14:53:28 CST </div> </div> 
+</pre> </div> </div> </div> <div id="footer"> <div id="footer-text"> V 0.1.0<br> 最后更新时间 2017-07-26 23:48:06 CST </div> </div> 
