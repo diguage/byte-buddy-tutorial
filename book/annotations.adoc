@@ -35,6 +35,8 @@ new ByteBuddy()
 [[type-annotations]]
 === 类型注解
 
+Byte Buddy 暴露并编写了类型注解，它们被引入到 Java 8，并成为其中的一部分。
+
 [[attribute appenders]]
 === 属性附加器
 
