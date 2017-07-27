@@ -42,6 +42,10 @@ DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
 [[domain-specific-language-and-immutability]]
 === 领域特定语言和不变性
 
+在看过 Byte Buddy 这种领域特定语言的实际效果之后，我们需要简要看一下这种语言的实现方式。有一个细节需要特别注意，这个语言是围绕 https://en.wikipedia.org/wiki/Immutable_object[不可变对象] 构建的。事实上，Byte Buddy 中，几乎所有的类都被构建成不可变的；极少数情况，我们不可能把对象构建成不可变的，我们会在该类的文档中明确指出。如果你为 Byte Buddy 实现自定义功能，我们建议你遵守此原则。
+
+作为所提到的不可变性的含义，例如配置 `ByteBuddy` 实例时，一定要小心。你也许会犯下面的错误：
+
 [source,{java_source_attr}]
 ----
 ByteBuddy byteBuddy = new ByteBuddy();
@@ -49,15 +53,35 @@ byteBuddy.withNamingStrategy(new NamingStrategy.SuffixingRandom("suffix"));
 DynamicType.Unloaded<?> dynamicType = byteBuddy.subclass(Object.class).make();
 ----
 
+你或许希望使用 `new NamingStrategy.SuffixingRandom("suffix")` 来自定义动态类型的命名策略。不是修改存储在 `byteBuddy` 变量中的实例，调用 `withNamingStrategy` 方法返回一个自定义的 `ByteBuddy` 实例，但是它却直接被丢弃了。结果，还是使用原来创建的默认配置来创建动态类型。
 
+[[redefining-and-rebasing-existing-classes]]
+=== 重新定义或者重定基底已经存在的类
+
+[NOTE]
+====
+*D瓜哥注*
+
+`type rebasing` 不知如何翻译是好，如果有好的翻译，欢迎给发PR。
+====
+
+到目前为止，我们仅仅演示了如何使用 Byte Buddy 来创建已知类的子类。相同的 API 还可用于增强已有类。增加已有类有两种方式：
+
+类型重定义（type redefinition）::
+当重定义一个类时，Byte Buddy 可以对一个已有的类添加属性和方法，或者删除已经存在的方法实现。如果使用其他的方法实现替换已经存在的方法实现，则原来存在的方法实现就会消失。例如，我们重定义下面这个类型
++
 [source,{java_source_attr}]
 ----
 class Foo {
   String bar() { return "bar"; }
 }
 ----
++
+从 `bar` 方法返回 `"qux"`，那么该方法原来返回的 `"bar"` 等信息就会都被丢失掉。
 
-
+类型重定基底（type rebasing）::
+当重定基底一个类时，Byte Buddy 保存基底类所有方法的实现。当 Byte Buddy 如执行类型重定义时，它将所有这些方法实现复制到具有兼容签名的重新命名的私有方法中，而不是抛弃重写的方法。这样，就没有实现会被丢失。重定义的方法可以继续通过它们重命名过的名称调用原来的方法。通过这种方式，上述 `Foo` 类就会被重定义成下面这个样子：
++
 [source,{java_source_attr}]
 ----
 class Foo {
@@ -65,7 +89,10 @@ class Foo {
   private String bar$original() { return "bar"; }
 }
 ----
++
+原来返回 `bar` 的方法被保存到了另外一个方法里，因此还可以访问。当重定基底一个类时，Byte Buddy 对待所有方法定义就像你定义一个子类一样，例如，如果你想调用重定义方法的超类方法是，它会调用被重定义的方法。__相反，它最终将这个假设的超级类别变成了上面显示的重定义类型。__
 
+任何重定基底、重定义或子类都是使用相同的 API 来执行，接口由 `DynamicType.Builder` 来定义。__这样，可以将类定义为子类，然后更改代码来替换重定类。__你只需要修改 Byte Buddy 领域特定语言的一个单词就能达到这个目的。这样，在定义的未来阶段，你就可以透明地切换任何一种方法：
 
 [source,{java_source_attr}]
 ----
@@ -73,6 +100,8 @@ new ByteBuddy().subclass(Foo.class)
 new ByteBuddy().redefine(Foo.class)
 new ByteBuddy().rebase(Foo.class)
 ----
+
+这在本教程的其余部分都有所解释。因为定义子类对于 Java 开发人员来说是如此地熟悉，所以，接下来的所有解释以及 Byte Buddy 领域特定语言的实例都是用创建子类来演示。但是，请记住，所有类可以类似地通过重定义或重定基类来定义。
 
 [[loading-a-class]]
 === 加载类
