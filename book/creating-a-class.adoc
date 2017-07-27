@@ -62,7 +62,7 @@ DynamicType.Unloaded<?> dynamicType = byteBuddy.subclass(Object.class).make();
 ====
 *D瓜哥注*
 
-`type rebasing` 不知如何翻译是好，如果有好的翻译，欢迎给发PR。
+*`type rebasing`* 不知如何翻译是好，暂且翻译为“*重定基底*”。下文中，根据语句通顺需要，偶尔也翻译成“*重定义*”。如果有好的翻译，欢迎给发PR。
 ====
 
 到目前为止，我们仅仅演示了如何使用 Byte Buddy 来创建已知类的子类。相同的 API 还可用于增强已有类。增加已有类有两种方式：
