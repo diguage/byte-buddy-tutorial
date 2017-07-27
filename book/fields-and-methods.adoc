@@ -50,6 +50,9 @@ Foo dynamicFoo = new ByteBuddy()
   .newInstance();
 ----
 
+[[a-closer-look-at-fixed-values]]
+=== 深入细看一个固定值
+
 [source,{java_source_attr}]
 ----
 new ByteBuddy()

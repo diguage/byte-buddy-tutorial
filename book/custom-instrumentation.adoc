@@ -64,7 +64,6 @@ enum SumMethod implements ByteCodeAppender {
 }
 ----
 
-
 [source,{java_source_attr}]
 ----
 enum SumImplementation implements Implementation {
@@ -97,6 +96,8 @@ new ByteBuddy()
   .make()
 ----
 
+[[creating-a-custom-assigner]]
+=== 创建自定义分配器
 
 [source,{java_source_attr}]
 ----
@@ -132,6 +133,9 @@ new ByteBuddy()
                     Assigner.Typing.STATIC))
   .make()
 ----
+
+[[creating-a-custom-parameter-binder]]
+=== 创建自定义参数绑定器
 
 [source,{java_source_attr}]
 ----

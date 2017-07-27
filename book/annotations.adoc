@@ -32,6 +32,12 @@ new ByteBuddy()
     .annotateField(new RuntimeDefinitionImpl())
 ----
 
+[[type-annotations]]
+=== 类型注解
+
+[[attribute appenders]]
+=== 属性附加器
+
 
 [source,{java_source_attr}]
 ----
