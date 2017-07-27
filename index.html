@@ -320,7 +320,7 @@ UserType userType = (UserType) factory.makeInstance();
     .intercept(SuperMethodCall.INSTANCE)
     .annotateMethod(<span class="keyword">new</span> RuntimeDefinitionImpl())
   .defineField(<span class="string"><span class="delimiter">&quot;</span><span class="content">foo</span><span class="delimiter">&quot;</span></span>, <span class="predefined-type">Object</span>.class)
-    .annotateField(<span class="keyword">new</span> RuntimeDefinitionImpl())</code></pre> </div> </div> <div class="sect2"> <h3 id="type-annotations">类型注解</h3> <div class="paragraph"> <p>[[attribute appenders]] === 属性附加器</p> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">AnnotatedMethod</span> {
+    .annotateField(<span class="keyword">new</span> RuntimeDefinitionImpl())</code></pre> </div> </div> <div class="sect2"> <h3 id="type-annotations">类型注解</h3> <div class="paragraph"> <p>Byte Buddy 暴露并编写了类型注解，它们被引入到 Java 8，并成为其中的一部分。</p> </div> <div class="paragraph"> <p>[[attribute appenders]] === 属性附加器</p> </div> <div class="listingblock"> <div class="content"> <pre class="CodeRay highlight"><code data-lang="java"><span class="type">class</span> <span class="class">AnnotatedMethod</span> {
   <span class="annotation">@SomeAnnotation</span>
   <span class="type">void</span> bar() { }
 }
@@ -654,4 +654,4 @@ AC</code></pre> </div> </div> <div class="listingblock"> <div class="content"> <
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-</pre> </div> </div> </div> <div id="footer"> <div id="footer-text"> V 0.1.0<br> 最后更新时间 2017-07-26 23:54:54 CST </div> </div> 
+</pre> </div> </div> </div> <div id="footer"> <div id="footer-text"> V 0.1.0<br> 最后更新时间 2017-07-27 10:59:10 CST </div> </div> 
