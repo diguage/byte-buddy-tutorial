@@ -82,12 +82,15 @@ class HardcodedFrameworkImpl implements Framework {
 
 [[general-information]]
 === 基本信息
+在学习代码生成和 Byte Buddy 之前，请注意，应该谨慎使用代码生成。Java 类型对于 Java 虚拟机来说，是相当特别的东西，通常不能当做垃圾被回收。因此，不应该过度使用代码生成，而应该只在生成代码是解决问题的唯一出路时使用。但是，如果需要像上面的示例那样增强未知类型时，则代码生成很可能是您唯一的选择。用于安全性，事务管理，对象关系映射或类型模拟（mock）等框架是代码生成库的典型用户。
 
-http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html[Java Proxy]::
-The Java Class Library comes with a proxy toolkit that allows for the creation of classes that implement a given set of interfaces.
+当然，Byte Buddy 不是 Java 虚拟机上第一个代码生成库。不过，我们认为 Byte Buddy 拥有其他框架没有的技巧。Byte Buddy 的总体目标是通过专注于其领域特定语言和注解的使用来声明式地进行工作。据我们所知，没有其他针对 Java 虚拟机的代码生成库以这种方式工作。不过，你可能希望看一下其他代码生成框架，以找出最适合您的套件。以下库在 Java 中很流行：
 
-https://github.com/cglib/cglib[cglib]::
-The code generation library was implemented during the early years of Java and it did unfortunately not keep up with the development of the Java platform.
+http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html[*Java Proxy*]::
+Java 类库自带了一个代理工具，它允许为实现了一系列接口的类创建代理。这个内置的代理供应商非常方便，但局限性也特别明显。 上面提到的安全框架就不能用这样的方式来实现的，因为我们想扩展是类而不是扩展接口。
 
-https://github.com/jboss-javassist/javassist[Javassist]::
-This library comes with a compiler that takes strings containing Java source code which are translated into Java byte code during the runtime of an application.
+https://github.com/cglib/cglib[*cglib*]::
+代码生成库（注：这里指 `cglib`）诞生于 Java 初期，但不幸的是没有跟上 Java 平台的发展。然而，cglib 仍然是一个相当强大的库，但其积极的开发却变得相当模糊。鉴于此，其许多用户已经离开了 cglib。
+
+https://github.com/jboss-javassist/javassist[*Javassist*]::
+该库附带一个编译器，它使用包含 Java 源代码的字符串，这些字符串在应用程序的运行时被转换为 Java 字节码。这是非常有前途的，本质上是一个好主意，因为 Java 源代码显然是描述 Java 类的好方法。但是，Javassist 编译器在功能上比不了 javac 编译器，并且在动态组合字符串以实现比较复杂的逻辑时容易出错。此外，Javassist 还提供了一个类似于 Java 类库中的代理工具，但允许扩展类，并不限于接口。然而，Javassist 的代理工具的范围在其 API 和功能上仍然受到限制。
