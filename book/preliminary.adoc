@@ -44,7 +44,9 @@ interface Framework {
 }
 ----
 
-在此框架中，`Secured` 注解应用于标记只能由给定用户访问的方法。`UserHolder` 用于在全局范围内定义当前登录到应用程序的用户。`Framework` 接口允许通过调用给定类型的默认构造函数来创建安全实例。
+在此框架中，`Secured` 注解应用于标记只能由给定用户访问的方法。`UserHolder` 用于在全局范围内定义当前登录到应用程序的用户。`Framework` 接口允许通过调用给定类型的默认构造函数来创建安全实例。当然，这个框架过于简单，但是，从本质上来说，即使流行的安全框架，例如 http://projects.spring.io/spring-security/[Spring Security]，也是这样实现的。这个安全框架的一个特点是我们过滤用户的类型。通过调用我们框架的接口，我们承诺返回给用户任何类型 `T` 的实例。幸亏这样，用户能够透明地他自己的类型进行交互，就像安全框架根本不存在一样。在测试环境中，用户甚至可以创建其类型的不安全实例，使用这些实例来代替安全实例。你会同意这真的很方便！已知这种框架使用 POJO，普通的旧 Java 对象进行交互，这是一种用于描述不侵入框架的术语，这些框架不会将自己的类型强加给用户。
+
+现在，想象一下，假如我们知道传递给 `Framework` 的类型只能是 `T = Service`，而且 `deleteEverything` 方法用 `@Secured("ADMIN")` 注解。这样，我们可以通过简单的子类化来轻松实现这种特定类型的安全版本：
 
 [source,{java_source_attr}]
 ----
@@ -60,6 +62,8 @@ class SecuredService extends Service {
 }
 ----
 
+通过这个额外的类，我们可以实现框架如下：
+
 [source,{java_source_attr}]
 ----
 class HardcodedFrameworkImpl implements Framework {
@@ -74,5 +78,16 @@ class HardcodedFrameworkImpl implements Framework {
 }
 ----
 
+当然这个实现并没有太多的用处。通过标注 `secure` 方法签名，我们建议该方法可以为任何类型提供安全性，但实际上，一旦遇到其他事情，我们将抛出一个异常，然后是已知的 `Service`。此外，当编译库时，这将需要我们的安全库知道有关此特定 `Service` 类型的信息。显然，这不是实现框架的可行解决方案。那么我们如何解决这个问题呢？好吧，由于这是一个关于代码生成库的教程，您可能已经猜到答案：当通过调用 `secure` 方法， `Service` 类第一次被我们安全框架知道时，我们会在运行时后台地创建一个子类。通过使用代码生成，我们可以使用任何给定的类型，在运行时将其子类化，并覆盖我们要保护的方法。在我们的例子中，我们覆盖所有被 `@Secured` 注解标注的方法，并从注解的 `user` 属性中读取所需的用户。许多流行的 Java 框架都使用类似的方法实现。
+
 [[general-information]]
 === 基本信息
+
+http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html[Java Proxy]::
+The Java Class Library comes with a proxy toolkit that allows for the creation of classes that implement a given set of interfaces.
+
+https://github.com/cglib/cglib[cglib]::
+The code generation library was implemented during the early years of Java and it did unfortunately not keep up with the development of the Java platform.
+
+https://github.com/jboss-javassist/javassist[Javassist]::
+This library comes with a compiler that takes strings containing Java source code which are translated into Java byte code during the runtime of an application.
