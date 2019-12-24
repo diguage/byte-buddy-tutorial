@@ -1,5 +1,7 @@
 = “Byte Buddy Tutorial” 中文翻译：Byte Buddy 教程
 
+image:https://badges.gitter.im/byte-buddy/community.svg[link="https://gitter.im/byte-buddy/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+
 *本文档是 D瓜哥 在学习 http://bytebuddy.net/#/tutorial[Byte Buddy Tutorial] 时随手翻译的。水平有限，难免失误，欢迎随时发生 PR。谢谢！*
 
 == 友情支持
