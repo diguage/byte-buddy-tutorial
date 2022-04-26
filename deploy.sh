@@ -60,7 +60,7 @@ cd $project_dir
 # $gsed -i "s/https:\/\/cdnjs.cloudflare.com\/ajax\/libs/http:\/\/cdn.bootcss.com/" $html_file_name
 
 # 替换 Google Fonts
-$gsed -i "s/https:\/\/fonts.googleapis.com/\/\/fonts.proxy.ustclug.org/" $html_file_name
+# $gsed -i "s/https:\/\/fonts.googleapis.com/\/\/fonts.proxy.ustclug.org/" $html_file_name
 
 $htmlminifier -c html-minifier.config.json $html_file_name -o index.html
 
@@ -72,7 +72,7 @@ git commit -am "ready to deploy"
 
 git push origin deploy
 
-rsync -avz --exclude=".*" . deployer@120.92.74.139:/home/deployer/diguage.com/notes/byte-buddy-tutorial
+rsync -avz --exclude=".*" . deployer@notes.diguage.com:/home/deployer/diguage.com/notes/byte-buddy-tutorial
 
 rm -rf $temp_folder
 

@@ -1,6 +1,6 @@
 :doctype: book
 :icons: font
-:iconfont-cdn: //cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css
+:iconfont-cdn: https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css
 :source-highlighter: coderay
 :source-language: java
 :pygments-style: monokai
