@@ -1,5 +1,5 @@
-[[fields-and-methods]]
-== 属性和方法
+[#fields-and-methods]
+= 属性和方法
 
 [source,{java_source_attr}]
 ----
@@ -50,8 +50,8 @@ Foo dynamicFoo = new ByteBuddy()
   .newInstance();
 ----
 
-[[a-closer-look-at-fixed-values]]
-=== 深入细看一个固定值
+[#a-closer-look-at-fixed-values]
+== 深入细看一个固定值
 
 [source,{java_source_attr}]
 ----
@@ -61,8 +61,8 @@ new ByteBuddy()
   .make();
 ----
 
-[[delegating-a-method-call]]
-=== 委托方法调用
+[#delegating-a-method-call]
+== 委托方法调用
 
 [source,{java_source_attr}]
 ----
@@ -225,8 +225,8 @@ MemoryDatabase loggingDatabase = new ByteBuddy()
   .newInstance();
 ----
 
-[[calling-a-super-method]]
-=== 调用超类方法
+[#calling-a-super-method]
+== 调用超类方法
 
 [source,{java_source_attr}]
 ----
@@ -242,8 +242,8 @@ new ByteBuddy()
   .make()
 ----
 
-[[calling-a-default-method]]
-=== 调用默认方法
+[#calling-a-default-method]
+== 调用默认方法
 
 [source,{java_source_attr}]
 ----
@@ -266,8 +266,8 @@ new ByteBuddy(ClassFileVersion.JAVA_V8)
   .make()
 ----
 
-[[calling-a-specific-method]]
-=== 调用特定方法
+[#calling-a-specific-method]
+== 调用特定方法
 
 [source,{java_source_attr}]
 ----
@@ -287,8 +287,8 @@ new ByteBuddy()
   .make()
 ----
 
-[[accessing-fields]]
-=== 访问属性
+[#accessing-fields]
+== 访问属性
 
 [source,{java_source_attr}]
 ----
@@ -347,5 +347,5 @@ UserType userType = (UserType) factory.makeInstance();
 ((InterceptionAccessor) userType).setInterceptor(new HelloWorldInterceptor());
 ----
 
-[[miscellaneous]]
-=== 杂项
+[#miscellaneous]
+== 杂项

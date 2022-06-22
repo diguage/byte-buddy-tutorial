@@ -1,5 +1,5 @@
-[[creating-a-class]]
-== 创建一个类
+[#creating-a-class]
+= 创建一个类
 
 任何一个由 Byte Buddy 创建的类型都是通过 `ByteBuddy` 类的实例来完成的。通过简单地调用 `new ByteBuddy()` 就可以创建一个新实例，然后就可以出发了。希望你使用一个集成开发环境，这样在调用一个给定实例的方法时就能得到相应的提示。这样，你的集成开发环境就会引导你完成相应的方法调用，防止手动在 Byte Buddy 文档中查阅某个类的 API。正如之前所说，Byte Buddy 提供了一个领域特定语言，这样就可以尽可能地提高人类可读性。集成开发环境的提示在大部分情况下会指引你到正确的方向。说的够多了，让我们在 Java 编程环境中创建第一个类吧：
 
@@ -39,8 +39,8 @@ DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
 
 在上面这里例子中，我们创建了一个新的配置，在类型命名方面，不同于默认配置。匿名类被简单实现为连接 `i.love.ByteBuddy` 和基类的简要名称。当扩展 `Object` 类型时，动态类将被命名为 `i.love.ByteBuddy.Object`。当创建自己的命名策略时，需要特别小心。Java 虚拟机就是使用名字来区分不同的类型的，这正是为什么要避免命名冲突的原因。如果你需要定制命名行为，请考虑使用 Byte Buddy 内置的 `NamingStrategy.SuffixingRandom`，你可以通过引入比默认对你应用更有意义的前缀来定制命名行为。
 
-[[domain-specific-language-and-immutability]]
-=== 领域特定语言和不变性
+[#domain-specific-language-and-immutability]
+== 领域特定语言和不变性
 
 在看过 Byte Buddy 这种领域特定语言的实际效果之后，我们需要简要看一下这种语言的实现方式。有一个细节需要特别注意，这个语言是围绕 https://en.wikipedia.org/wiki/Immutable_object[不可变对象] 构建的。事实上，Byte Buddy 中，几乎所有的类都被构建成不可变的；极少数情况，我们不可能把对象构建成不可变的，我们会在该类的文档中明确指出。如果你为 Byte Buddy 实现自定义功能，我们建议你遵守此原则。
 
@@ -55,8 +55,8 @@ DynamicType.Unloaded<?> dynamicType = byteBuddy.subclass(Object.class).make();
 
 你或许希望使用 `new NamingStrategy.SuffixingRandom("suffix")` 来自定义动态类型的命名策略。不是修改存储在 `byteBuddy` 变量中的实例，调用 `withNamingStrategy` 方法返回一个自定义的 `ByteBuddy` 实例，但是它却直接被丢弃了。结果，还是使用原来创建的默认配置来创建动态类型。
 
-[[redefining-and-rebasing-existing-classes]]
-=== 重新定义或者重定基底已经存在的类
+[#redefining-and-rebasing-existing-classes]
+== 重新定义或者重定基底已经存在的类
 
 [NOTE]
 ====
@@ -103,8 +103,8 @@ new ByteBuddy().rebase(Foo.class)
 
 这在本教程的其余部分都有所解释。因为定义子类对于 Java 开发人员来说是如此地熟悉，所以，接下来的所有解释以及 Byte Buddy 领域特定语言的实例都是用创建子类来演示。但是，请记住，所有类可以类似地通过重定义或重定基类来定义。
 
-[[loading-a-class]]
-=== 加载类
+[#loading-a-class]
+== 加载类
 
 到目前为止，我们只定义并创建了一个动态类型，但是我们没有使用它。由 Byte Buddy 创建的类型使用 `DynamicType.Unloaded` 的实例表示。顾名思义，这些类型不会加载到 Java 虚拟机中。相反，由 Byte Buddy 创建的类以二进制，Java 类文件格式形式表示。这样，您可以决定要使用生成的类型做什么。例如，您可能希望从构建脚本运行 Byte Buddy，该脚本仅在部署之前生成 Java 类以增强应用程序。为此，`DynamicType.Unloaded` 类允许提取表示动态类型的字节数组。为方便起见，该类型还提供了一个 `saveIn(File)` 方法，可以将类存储在给定的文件夹中。此外，它允许您使用 `inject(File)` 方法将类注入到现有的 Jar 文件中。
 
@@ -141,8 +141,8 @@ Class<?> type = new ByteBuddy()
 
 __请注意，加载类时，通过应用当前执行上下文的 `ProtectionDomain` 来执行预定义的类加载策略。或者，所有默认策略通过调用 `withProtectionDomain` 方法来提供明确保护域的规范。使用安全管理员（security manager）或使用已签名的 Jar 中定义的类时，定义显式保护域很重要。__
 
-[[reloading-a-class]]
-=== 重新加载类
+[#reloading-a-class]
+== 重新加载类
 
 [source,{java_source_attr}]
 ----
@@ -168,8 +168,8 @@ new ByteBuddy()
 assertThat(foo.m(), is("bar"));
 ----
 
-[[working-with-unloaded-classes]]
-=== 操作没有加载的类
+[#working-with-unloaded-classes]
+== 操作没有加载的类
 
 [source,{java_source_attr}]
 ----
@@ -193,8 +193,8 @@ class MyApplication {
 }
 ----
 
-[[creating-java-agents]]
-=== 创建 Java Agents
+[#creating-java-agents]
+== 创建 Java Agents
 
 [source,{java_source_attr}]
 ----
@@ -215,8 +215,8 @@ class ToStringAgent {
 }
 ----
 
-[[loading-classes-in-android-applications]]
-=== 在 Android 应用中加载类
+[#loading-classes-in-android-applications]
+== 在 Android 应用中加载类
 
-[[working-with-generic-types]]
-=== 使用泛型类
+[#working-with-generic-types]
+== 使用泛型类

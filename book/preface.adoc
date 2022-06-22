@@ -1,9 +1,10 @@
+[#preface]
 [preface]
-== 前言
+= 前言
 
 *本文档是 D瓜哥 在学习 http://bytebuddy.net/#/tutorial[Byte Buddy Tutorial] 时随手翻译的。水平有限，难免失误，欢迎随时发生 PR。谢谢！*
 
-=== 友情支持
+== 友情支持
 
 如果您觉得这个笔记对您有所帮助，看在 D瓜哥 码字的辛苦上，请友情支持一下。屌丝逆袭，赢取白富美，走向人生巅峰就靠这个了，😜 😜
 
@@ -19,12 +20,12 @@ image:images/wx-jikerizhi.png[align="center",width=98%]
 TIP: **公众号的微信号是: jikerizhi**。__因为众所周知的原因，有时图片加载不出来。如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。__
 
 
-=== 官网及版本库
+== 官网及版本库
 
 本文档的版本库使用 Git 管理。另外，单独发布阅读版。
 
 “地瓜哥”博客网:: https://www.diguage.com/ 。D瓜哥的个人博客。欢迎光临，不过，内容很杂乱，请见谅。不见谅，你来打我啊，😂😂
-本文档官网:: http://notes.diguage.com/byte-buddy-tutorial/ 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。
+本文档官网:: https://notes.diguage.com/byte-buddy-tutorial/ 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。
 本文档版本库:: https://github.com/diguage/byte-buddy-tutorial 。反正也没啥保密可言，版本库分分钟给出。😜
 
 NOTE: 文本中斜体字表示翻译很不满意，还需要再三斟酌来探究更好的翻译。希望感兴趣的小伙伴在阅读的时候多多留意。更希望发送 PR 过来。谢谢！！

@@ -21,17 +21,17 @@ include::analytics.html[]
 // include::{book_dir}/dedication.adoc[]
 
 // 前言
-include::{book_dir}/preface.adoc[]
+include::{book_dir}/preface.adoc[leveloffset=+1]
 
-include::{book_dir}/preliminary.adoc[]
+include::{book_dir}/preliminary.adoc[leveloffset=+1]
 
-include::{book_dir}/creating-a-class.adoc[]
+include::{book_dir}/creating-a-class.adoc[leveloffset=+1]
 
-include::{book_dir}/fields-and-methods.adoc[]
+include::{book_dir}/fields-and-methods.adoc[leveloffset=+1]
 
-include::{book_dir}/annotations.adoc[]
+include::{book_dir}/annotations.adoc[leveloffset=+1]
 
-include::{book_dir}/custom-instrumentation.adoc[]
+include::{book_dir}/custom-instrumentation.adoc[leveloffset=+1]
 
 
 

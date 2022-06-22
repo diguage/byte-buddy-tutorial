@@ -1,5 +1,5 @@
-[[annotations]]
-== 注解
+[#annotations]
+= 注解
 
 
 [source,{java_source_attr}]
@@ -32,13 +32,13 @@ new ByteBuddy()
     .annotateField(new RuntimeDefinitionImpl())
 ----
 
-[[type-annotations]]
-=== 类型注解
+[#type-annotations]
+== 类型注解
 
 Byte Buddy 暴露并编写了类型注解，它们被引入到 Java 8，并成为其中的一部分。
 
-[[attribute-appenders]]
-=== 属性附加器
+[#attribute-appenders]
+== 属性附加器
 
 
 [source,{java_source_attr}]

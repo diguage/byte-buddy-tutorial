@@ -1,10 +1,9 @@
 :doctype: book
 :icons: font
 :iconfont-cdn: https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css
-:source-highlighter: coderay
+:source-highlighter: rouge
 :source-language: java
-:pygments-style: monokai
-:pygments-linenums-mode: table
+:rouge-style: github
 :linkcss:
 :docinfo:
 :toc: left
