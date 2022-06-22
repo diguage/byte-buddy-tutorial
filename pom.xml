@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.diguage.cafe</groupId>
+    <artifactId>jiadao</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <description>jiadao，贾岛。取义贾岛的“推敲”典故，意指字节码学习要仔细推敲。</description>
+    <url>https://www.diguage.com/</url>
+
+    <properties>
+        <byte-buddy.version>1.12.10</byte-buddy.version>
+
+        <asciidoctorj.version>2.5.4</asciidoctorj.version>
+        <asciidoctorj-pdf.version>2.0.6</asciidoctorj-pdf.version>
+        <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
+        <asciidoctorj-diagram.version>2.2.3</asciidoctorj-diagram.version>
+        <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
+        <asciidoctor-multipage.version>0.0.16</asciidoctor-multipage.version>
+        <jruby.version>9.3.4.0</jruby.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-benchmark</artifactId>
+            <version>${byte-buddy.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>rubygems</groupId>
+            <artifactId>asciidoctor-multipage</artifactId>
+            <version>${asciidoctor-multipage.version}</version>
+            <type>gem</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>rubygems</groupId>
+                    <artifactId>asciidoctor</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <extensions>
+            <extension> <!-- this allows us to download gems -->
+                <groupId>org.torquebox.mojo</groupId>
+                <artifactId>mavengem-wagon</artifactId>
+                <version>1.0.3</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>de.saumya.mojo</groupId>
+                <artifactId>gem-maven-plugin</artifactId>
+                <version>2.0.1</version>
+                <configuration>
+                    <jrubyVersion>${jruby.version}</jrubyVersion>
+                    <gemHome>${project.build.directory}/gems</gemHome>
+                    <gemPath>${project.build.directory}/gems</gemPath>
+                </configuration>
+                <executions>
+                    <!-- Install required gems in target directory -->
+                    <execution>
+                        <id>install-gems</id>
+                        <goals>
+                            <goal>initialize</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoctor-maven-plugin.version}</version>
+                <configuration>
+                    <sourceDirectory>docs</sourceDirectory>
+                    <sourceDocumentName>index.adoc</sourceDocumentName>
+                    <requires>
+                        <require>asciidoctor-diagram</require>
+                    </requires>
+                    <attributes>
+                        <sourcedir>${project.build.sourceDirectory}/com/diguage/cafe/jiadao</sourcedir>
+                        <basedir>${project.basedir}</basedir>
+                        <source-highlighter>rouge</source-highlighter>
+                        <rouge-style>github</rouge-style>
+                        <imagesdir>.</imagesdir>
+                        <icons>font</icons>
+                        <linkcss>true</linkcss>
+                        <stylesdir>assets/styles</stylesdir>
+                        <toclevels>3</toclevels>
+                        <sectnums>true</sectnums>
+                        <sectnumlevels>3</sectnumlevels>
+                        <sectanchors>true</sectanchors>
+                        <graphvizdot>/usr/local/bin/dot</graphvizdot>
+                        <source_attr>linenums,indent=0,subs="attributes,verbatim,quotes"</source_attr>
+                        <java_source_attr>source%nowrap,java,{source_attr}</java_source_attr>
+                        <html_src_attr>source%nowrap,html,{source_attr}</html_src_attr>
+                        <image_attr>align="center",width=100%</image_attr>
+                        <diagram_attr>format=svg,align="center",width=90%</diagram_attr>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-multipage</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>multipage_html5</backend>
+                            <doctype>book</doctype>
+
+                            <gemPath>${project.build.directory}/gems</gemPath>
+                            <requires>
+                                <require>asciidoctor-multipage</require>
+                            </requires>
+
+                            <outputDirectory>${project.build.directory}/docs/multipage</outputDirectory>
+
+                            <attributes>
+                                <toc>left</toc>
+                            </attributes>
+                        </configuration>
+                    </execution>
+
+                    <!--<execution>-->
+                    <!--    <id>generate-html</id>-->
+                    <!--    <phase>package</phase>-->
+                    <!--    <goals>-->
+                    <!--        <goal>process-asciidoc</goal>-->
+                    <!--    </goals>-->
+                    <!--    <configuration>-->
+                    <!--        <backend>html5</backend>-->
+                    <!--        <doctype>book</doctype>-->
+                    <!--        <outputDirectory>${project.build.directory}/docs/html</outputDirectory>-->
+                    <!--        <attributes>-->
+                    <!--            <toc>left</toc>-->
+                    <!--            <docinfo1>true</docinfo1>-->
+                    <!--        </attributes>-->
+                    <!--    </configuration>-->
+                    <!--</execution>-->
+
+                    <!--<execution>-->
+                    <!--    <id>generate-epub</id>-->
+                    <!--    <phase>package</phase>-->
+                    <!--    <goals>-->
+                    <!--        <goal>process-asciidoc</goal>-->
+                    <!--    </goals>-->
+                    <!--    <configuration>-->
+                    <!--        <backend>epub3</backend>-->
+                    <!--        <sourceDocumentName>index.adoc</sourceDocumentName>-->
+                    <!--        <outputDirectory>${project.build.directory}/docs/epub</outputDirectory>-->
+                    <!--        <attributes>-->
+                    <!--            <source-highlighter>coderay</source-highlighter>-->
+                    <!--        </attributes>-->
+                    <!--    </configuration>-->
+                    <!--</execution>-->
+
+                    <!--<execution>-->
+                    <!--    <id>generate-kf8</id>-->
+                    <!--    <phase>package</phase>-->
+                    <!--    <goals>-->
+                    <!--        <goal>process-asciidoc</goal>-->
+                    <!--    </goals>-->
+                    <!--    <configuration>-->
+                    <!--        <backend>epub3</backend>-->
+                    <!--        <sourceDocumentName>index.adoc</sourceDocumentName>-->
+                    <!--        <outputDirectory>${project.build.directory}/docs/kf8</outputDirectory>-->
+                    <!--        <attributes>-->
+                    <!--            <ebook-format>kf8</ebook-format>-->
+                    <!--        </attributes>-->
+                    <!--    </configuration>-->
+                    <!--</execution>-->
+
+                    <!--<execution>-->
+                    <!--    <id>generate-pdf</id>-->
+                    <!--    <phase>package</phase>-->
+                    <!--    <goals>-->
+                    <!--        <goal>process-asciidoc</goal>-->
+                    <!--    </goals>-->
+                    <!--    <configuration>-->
+                    <!--        <backend>pdf</backend>-->
+                    <!--        <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>-->
+                    <!--        <attributes>-->
+                    <!--            <allow-uri-read/>-->
+                    <!--            <plantumlconfig>${project.basedir}/cfg/plantuml.cfg</plantumlconfig>-->
+                    <!--            <pdf-fontsdir>${project.basedir}/cfg/fonts</pdf-fontsdir>-->
+                    <!--            <pdf-themesdir>${project.basedir}/cfg/theme</pdf-themesdir>-->
+                    <!--            &lt;!&ndash; Set Source theme &ndash;&gt;-->
+                    <!--            <pdf-theme>Source</pdf-theme>-->
+                    <!--            <pagenums/>-->
+                    <!--            <toc/>-->
+                    <!--            <idprefix/>-->
+                    <!--            <idseparator>-</idseparator>-->
+                    <!--            &lt;!&ndash; Fixes line wraps formatting inserting zero-width spaces (ZWSP) before CJ characters &ndash;&gt;-->
+                    <!--            <scripts>cjk</scripts>-->
+                    <!--            <pdf-version>1.7</pdf-version>-->
+                    <!--            <rouge-style>github</rouge-style>-->
+                    <!--            &lt;!&ndash;<media>screen</media>&ndash;&gt;-->
+                    <!--            &lt;!&ndash;<optimize>screen</optimize>&ndash;&gt;-->
+                    <!--            &lt;!&ndash;<media>prepress</media>&ndash;&gt;-->
+                    <!--            &lt;!&ndash;<optimize>prepress</optimize>&ndash;&gt;-->
+                    <!--        </attributes>-->
+                    <!--    </configuration>-->
+                    <!--</execution>-->
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${asciidoctorj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>${asciidoctorj-pdf.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-epub3</artifactId>
+                        <version>${asciidoctorj-epub3.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram</artifactId>
+                        <version>${asciidoctorj-diagram.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby-complete</artifactId>
+                        <version>${jruby.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>mavengems</id>
+            <url>mavengem:https://rubygems.org</url>
+        </repository>
+    </repositories>
+</project>

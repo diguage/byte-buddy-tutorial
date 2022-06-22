@@ -21,23 +21,3 @@
 :description: Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。
 :last-update-label: 最后更新时间
 :homepage: http://www.diguage.com/
-:base_dir: ..
-:to_dir: ..
-:project_dir: {base_dir}
-:target_dir: {to_dir}/target
-
-//-- 以上是 Asciidoctor 系统变量  -----------------------------------------
-//-- 以下是 自定义变量
-
-:source_dir: {project_dir}/src/main/java/com/diguage
-
-:puml_dir: {project_dir}/puml
-
-:puml_target_dir: uml
-
-:var_width: 100%
-
-:source_attr: subs="attributes,verbatim"
-// :source_attr: linenums,subs="attributes,verbatim"
-
-:java_source_attr: java,{source_attr}
