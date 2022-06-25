@@ -4,7 +4,7 @@ v0.1.0, 2017-07-24
 include::_attributes.adoc[]
 
 ++++
-include::analytics.htm[]
+include::assets/tags/analytics.htm[]
 ++++
 
 :sectnums!:

@@ -15,7 +15,7 @@
         <byte-buddy.version>1.12.10</byte-buddy.version>
 
         <asciidoctorj.version>2.5.4</asciidoctorj.version>
-        <asciidoctorj-pdf.version>2.0.6</asciidoctorj-pdf.version>
+        <asciidoctorj-pdf.version>2.1.2</asciidoctorj-pdf.version>
         <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
         <asciidoctorj-diagram.version>2.2.3</asciidoctorj-diagram.version>
         <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
