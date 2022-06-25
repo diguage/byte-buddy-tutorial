@@ -15,7 +15,7 @@ _然而，通过强制实施其严格的类型系统，Java 限制了自己在�
 
 业务应用程序可能会增长，有时很难在我们的应用程序中概述调用堆栈。当我们在应用程序中使用至关重要的方法时，而这些方法只能在特定条件下调用，这可能会变得有问题。 设想一下，实现重置功能的业务应用程序可以从应用程序的数据库中删除所有内容。
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class Service {
   void deleteEverything() {
@@ -28,7 +28,7 @@ class Service {
 
 为此，假设我们使用具有公共 API 如下的安全框架：
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 @Retention(RetentionPolicy.RUNTIME)
 @interface Secured {
@@ -48,7 +48,7 @@ interface Framework {
 
 现在，想象一下，假如我们知道传递给 `Framework` 的类型只能是 `T = Service`，而且 `deleteEverything` 方法用 `@Secured("ADMIN")` 注解。这样，我们可以通过简单的子类化来轻松实现这种特定类型的安全版本：
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class SecuredService extends Service {
   @Override
@@ -64,7 +64,7 @@ class SecuredService extends Service {
 
 通过这个额外的类，我们可以实现框架如下：
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class HardcodedFrameworkImpl implements Framework {
   @Override

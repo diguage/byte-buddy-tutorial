@@ -1,7 +1,7 @@
 [#custom-instrumentation]
 = 定制化仪表
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 LDC     10  // stack contains 10
 LDC     50  // stack contains 10, 50
@@ -10,7 +10,7 @@ IRETURN     // stack is empty
 ----
 
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 12 00 01
 12 00 02
@@ -18,7 +18,7 @@ IRETURN     // stack is empty
 AC
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 enum IntegerSum implements StackManipulation {
 
@@ -39,7 +39,7 @@ enum IntegerSum implements StackManipulation {
 ----
 
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 enum SumMethod implements ByteCodeAppender {
 
@@ -64,7 +64,7 @@ enum SumMethod implements ByteCodeAppender {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 enum SumImplementation implements Implementation {
 
@@ -83,7 +83,7 @@ enum SumImplementation implements Implementation {
 ----
 
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 abstract class SumExample {
   public abstract int calculate();
@@ -99,7 +99,7 @@ new ByteBuddy()
 [#creating-a-custom-assigner]
 == 创建自定义分配器
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 enum ToStringAssigner implements Assigner {
 
@@ -123,7 +123,7 @@ enum ToStringAssigner implements Assigner {
 ----
 
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy()
   .subclass(Object.class)
@@ -137,7 +137,7 @@ new ByteBuddy()
 [#creating-a-custom-parameter-binder]
 == 创建自定义参数绑定器
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 @Retention(RetentionPolicy.RUNTIME)
 @interface StringValue {
@@ -145,7 +145,7 @@ new ByteBuddy()
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 enum StringValueBinder
     implements TargetMethodAnnotationDrivenBinder.ParameterBinder<StringValue> {
@@ -173,7 +173,7 @@ enum StringValueBinder
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class ToStringInterceptor {
   public static String makeString(@StringValue("Hello!") String value) {

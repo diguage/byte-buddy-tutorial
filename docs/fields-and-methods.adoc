@@ -1,7 +1,7 @@
 [#fields-and-methods]
 = 属性和方法
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 String toString = new ByteBuddy()
   .subclass(Object.class)
@@ -13,7 +13,7 @@ String toString = new ByteBuddy()
   .toString();
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 String toString = new ByteBuddy()
   .subclass(Object.class)
@@ -26,12 +26,12 @@ String toString = new ByteBuddy()
   .toString();
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 named("toString").and(returns(String.class)).and(takesArguments(0))
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class Foo {
   public String bar() { return null; }
@@ -53,7 +53,7 @@ Foo dynamicFoo = new ByteBuddy()
 [#a-closer-look-at-fixed-values]
 == 深入细看一个固定值
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy()
   .subclass(Foo.class)
@@ -64,7 +64,7 @@ new ByteBuddy()
 [#delegating-a-method-call]
 == 委托方法调用
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class Source {
   public String hello(String name) { return null; }
@@ -86,7 +86,7 @@ String helloWorld = new ByteBuddy()
   .hello("World");
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class Target {
   public static String intercept(String name) { return "Hello " + name + "!"; }
@@ -95,17 +95,17 @@ class Target {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 void foo(Object o1, Object o2)
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 void foo(@Argument(0) Object o1, @Argument(1) Object o2)
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class MemoryDatabase {
   public List<String> load(String info) {
@@ -134,7 +134,7 @@ MemoryDatabase loggingDatabase = new ByteBuddy()
   .newInstance();
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class LoggingMemoryDatabase extends MemoryDatabase {
 
@@ -158,7 +158,7 @@ class LoggingMemoryDatabase extends MemoryDatabase {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class ChangingLoggerInterceptor {
   public static List<String> log(String info, @Super MemoryDatabase zuper) {
@@ -172,7 +172,7 @@ class ChangingLoggerInterceptor {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class Loop {
   public String loop(String value) { return value; }
@@ -180,7 +180,7 @@ class Loop {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class Interceptor {
   @RuntimeType
@@ -191,14 +191,14 @@ class Interceptor {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 interface Forwarder<T, S> {
   T to(S target);
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class ForwardingLoggerInterceptor {
 
@@ -228,14 +228,14 @@ MemoryDatabase loggingDatabase = new ByteBuddy()
 [#calling-a-super-method]
 == 调用超类方法
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy()
   .subclass(Object.class)
   .make()
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy()
   .subclass(Object.class, ConstructorStrategy.Default.IMITATE_SUPER_TYPE)
@@ -245,7 +245,7 @@ new ByteBuddy()
 [#calling-a-default-method]
 == 调用默认方法
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 interface First {
   default String qux() { return "FOO"; }
@@ -256,7 +256,7 @@ interface Second {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy(ClassFileVersion.JAVA_V8)
   .subclass(Object.class)
@@ -269,7 +269,7 @@ new ByteBuddy(ClassFileVersion.JAVA_V8)
 [#calling-a-specific-method]
 == 调用特定方法
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 public class SampleClass {
   public SampleClass(int unusedValue) {
@@ -278,7 +278,7 @@ public class SampleClass {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy()
   .subclass(Object.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
@@ -290,7 +290,7 @@ new ByteBuddy()
 [#accessing-fields]
 == 访问属性
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class UserType {
   public String doSomething() { return null; }
@@ -310,7 +310,7 @@ interface InstanceCreator {
 }
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 Class<? extends UserType> dynamicUserType = new ByteBuddy()
   .subclass(UserType.class)
@@ -323,7 +323,7 @@ Class<? extends UserType> dynamicUserType = new ByteBuddy()
   .getLoaded();
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 InstanceCreator factory = new ByteBuddy()
   .subclass(InstanceCreator.class)
@@ -334,7 +334,7 @@ InstanceCreator factory = new ByteBuddy()
   .getLoaded().newInstance();
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class HelloWorldInterceptor implements Interceptor {
   @Override

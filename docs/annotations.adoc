@@ -2,7 +2,7 @@
 = 注解
 
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 @Retention(RetentionPolicy.RUNTIME)
 @interface RuntimeDefinition { }
@@ -20,7 +20,7 @@ new ByteBuddy()
   .make();
 ----
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 new ByteBuddy()
   .subclass(Object.class)
@@ -41,7 +41,7 @@ Byte Buddy 暴露并编写了类型注解，它们被引入到 Java 8，并成�
 == 属性附加器
 
 
-[source,{java_source_attr}]
+[{java_source_attr}]
 ----
 class AnnotatedMethod {
   @SomeAnnotation
