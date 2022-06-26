@@ -172,7 +172,19 @@ new ByteBuddy()
 assertThat(foo.m(), is("bar"));
 ----
 
-热替换仅能通过所谓的 https://docs.oracle.com/en/java/javase/17/docs/api/java.instrument/java/lang/instrument/package-summary.html[Java Agent^] 进行访问。
+TIP: 为了方便对比原文与翻译，以求有志之士改进翻译，以下增加英语原文，原文下面增加翻译。
+
+HotSwap is only accessible using a https://docs.oracle.com/en/java/javase/17/docs/api/java.instrument/java/lang/instrument/package-summary.html[so-called Java agent^]. Such an agent can be installed by either specifying it on the startup of the Java virtual machine by using the `-javaagent` parameter where the parameter's argument needs to be Byte Buddy's agent jar which can be https://search.maven.org/search?q=a:byte-buddy-agent[downloaded from Maven Central^]. However, when a Java application is run from a JDK-installation of the Java virtual machine, Byte Buddy can load a Java agent even after application startup by `ByteBuddyAgent.installOnOpenJDK()`. Because class redefinition is mostly used to implement tooling or testing, this can be a very convenient alternative. Since Java 9, an agent installation is also possible at runtime without a JDK-installation.
+
+热替换仅能通过所谓的 https://docs.oracle.com/en/java/javase/17/docs/api/java.instrument/java/lang/instrument/package-summary.html[Java Agent^] 进行访问。__可以通过使用 `-javaagent` 参数在Java 虚拟机的启动时指定 Java Agent，其中参数值是使用 Byte Buddy 开发的 Jar 包，而 Byte Buddy 相关依赖则可以从 https://search.maven.org/search?q=a:byte-buddy-agent[Maven Central^] 下载。__然而，当 Java 应用程序是在从 JDK 安装的 Java 虚拟机中运行时，Byte Buddy 甚至可以通过 `ByteBuddyAgent.installOnOpenJDK()` 在启动应用程序后加载 Java Agent。因为类重定义主要用于实现工具或测试，所以这是一种非常方便的替代方法。从 Java 9 开始，在运行时不需要 JDK 安装也可以进行代理安装。
+
+One thing that might first appear counter-intuitive about the above example is the fact that Byte Buddy is instructed to redefine the `Bar` type where the `Foo` type is eventually redefined. The Java virtual machine identifies types by their name and a class loader. Therefore, by renaming `Bar` to `Foo` and applying this definition, we eventually redefine the type we renamed `Bar` into. It is of course equally possible to redefine Foo directly without renaming a different type.
+
+关于上面的示例，首先看起来可能与直觉相反的一件事是，Byte Buddy 被指示重新定义 `Bar` 类型，而 `Foo` 类型最终被重新定义。Java 虚拟机通过类型的名称和类加载器来识别类型。因此，通过将 `Bar` 重命名为 `Foo` 并应用此定义，我们最终重新定义了将 `Bar` 重命名为的类型。当然，同样可以直接重新定义 `Foo`，而无需重命名其他类型。
+
+Using Java's HotSwap feature, there is however one huge drawback. Current implementations of HotSwap require that the redefined classes apply the same class schema both before and after a class redefinition. This means that it is not allowed to add methods or fields when reloading classes. We already discussed that Byte Buddy defines copies of the original methods for any rebased class such that class rebasing does not work for the `ClassReloadingStrategy`. Also, class redefinition does not work for classes with an explicit class initializer method (a static block within a class) because this initializer needs to be copied into an extra method as well. Unfortunately OpenJDK has withdrawn from https://openjdk.org/jeps/159[extending HotSwap functionality^], so there is no way to work around this limitation using the HotSwap feature. In the mean time, Byte Buddy's HotSwap support can be used for corner-cases where it seems useful. Otherwise, class rebasing and redefinition can be a convenient feature when enhancing existing classes from for example a build script.
+
+然而，使用 Java 的热交换功能，有一个巨大的缺点。当前的热替换实现要求重定义的类在重定义之前和之后都应用相同的模式。这意味着在重载类时不允许添加方法或字段。我们已经讨论过，Byte Buddy 为任何重定基类定义了原始方法的副本，这样重定基底的类，对于 `ClassReloadingStrategy` 来说，都是不适用的。同样，类重定义不适用于具有显式类初始化器方法(类中的静态块)的类，因为这个初始化器还需要复制到一个额外的方法中。不幸的是，OpenJDK 已经退出了 https://openjdk.org/jeps/159[对热替换功能的扩展^]，因此使用热替换功能就无法绕过这一限制。同时，Byte Buddy的热替换对于一些极端情况，似乎特别有用。同时，当增加现有类时，比如一个构建脚本，类的重定基底和类的重定义将是一个非常方便的特效。
 
 [#working-with-unloaded-classes]
 == 操作没有加载的类
