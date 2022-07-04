@@ -177,3 +177,5 @@ fabric.properties
 /docs/*.svg
 /docs/*.png
 
+cfg/gems
+

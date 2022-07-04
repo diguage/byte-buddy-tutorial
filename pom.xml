@@ -21,6 +21,7 @@
         <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
         <asciidoctor-multipage.version>0.0.16</asciidoctor-multipage.version>
         <jruby.version>9.3.4.0</jruby.version>
+        <gem-path>${project.basedir}/cfg/gems</gem-path>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -75,8 +76,12 @@
                 <version>2.0.1</version>
                 <configuration>
                     <jrubyVersion>${jruby.version}</jrubyVersion>
-                    <gemHome>${project.build.directory}/gems</gemHome>
-                    <gemPath>${project.build.directory}/gems</gemPath>
+                    <!-- https://stackoverflow.com/a/11277228/951836 -->
+                    <!-- GEM_HOME is where gems will be installed (by default). -->
+                    <gemHome>${gem-path}</gemHome>
+                    <!-- GEM_PATH provides the locations where gems can be found. -->
+                    <!-- Therefore GEM_PATH should include GEM_HOME -->
+                    <gemPath>${gem-path}</gemPath>
                 </configuration>
                 <executions>
                     <!-- Install required gems in target directory -->
@@ -131,7 +136,7 @@
                             <backend>multipage_html5</backend>
                             <doctype>book</doctype>
 
-                            <gemPath>${project.build.directory}/gems</gemPath>
+                            <gemPath>${gem-path}</gemPath>
                             <requires>
                                 <require>asciidoctor-multipage</require>
                             </requires>
