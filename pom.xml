@@ -12,10 +12,10 @@
     <url>https://www.diguage.com/</url>
 
     <properties>
-        <byte-buddy.version>1.12.10</byte-buddy.version>
+        <byte-buddy.version>1.12.12</byte-buddy.version>
 
         <asciidoctorj.version>2.5.4</asciidoctorj.version>
-        <asciidoctorj-pdf.version>2.1.2</asciidoctorj-pdf.version>
+        <asciidoctorj-pdf.version>2.1.4</asciidoctorj-pdf.version>
         <asciidoctorj-epub3.version>1.5.1</asciidoctorj-epub3.version>
         <asciidoctorj-diagram.version>2.2.3</asciidoctorj-diagram.version>
         <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
@@ -25,8 +25,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -48,6 +48,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>rubygems</groupId>
             <artifactId>asciidoctor-multipage</artifactId>
             <version>${asciidoctor-multipage.version}</version>
@@ -60,6 +65,18 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.8.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <extensions>
