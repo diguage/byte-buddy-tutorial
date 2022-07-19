@@ -2,9 +2,14 @@ package com.diguage.cafe.jiadao;
 
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.NamingStrategy;
+import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByteBuddyTest {
 
@@ -40,4 +45,27 @@ public class ByteBuddyTest {
                 .subclass(Object.class)
                 .make();
     }
+
+    @Test
+    public void test4() {
+        Class<?> type = new ByteBuddy()
+                .subclass(Object.class)
+                .make()
+                .load(getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+                .getLoaded();
+    }
+
+    @Test
+    public void test5() {
+        ByteBuddyAgent.install();
+        Foo foo = new Foo();
+        new ByteBuddy()
+                .redefine(Bar.class)
+                .name(Foo.class.getName())
+                .make()
+                .load(Foo.class.getClassLoader(), ClassReloadingStrategy.fromInstalledAgent());
+        assertThat(foo.m()).isEqualTo("bar");
+    }
+
+
 }
