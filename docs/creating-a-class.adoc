@@ -29,7 +29,7 @@ DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
 DynamicType.Unloaded<?> dynamicType = new ByteBuddy()
   .with(new NamingStrategy.AbstractBase() {
     @Override
-    public String subclass(TypeDescription superClass) {
+    protected String name(TypeDescription superClass) {
         return "i.love.ByteBuddy." + superClass.getSimpleName();
     }
   })
