@@ -72,3 +72,12 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             sudo chmod -R 777 *
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          # The branch the action should deploy to.
+          branch: gh-pages
+          # The folder the action should deploy.
+          folder: target/docs/multipage/
+          single-commit: true

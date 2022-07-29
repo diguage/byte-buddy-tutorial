@@ -189,6 +189,11 @@ Using Java's HotSwap feature, there is however one huge drawback. Current implem
 [#working-with-unloaded-classes]
 == 操作没有加载的类
 
+With this realization about the limits of Java's HotSwap feature, one might think that the only meaningful application of the `rebase` and `redefinition` instructions would be during build time. By applying build-time manipulation, one can assert that a processed class is not loaded before its initial class loading simply because this class loading is accomplished in a different instance of the JVM. Byte Buddy is however equally capable of working with classes that were not yet loaded. For this, Byte Buddy abstracts over Java's reflection API such that a `Class` instance is for example internally represented by an instance of a `TypeDescription`. As a matter of fact, Byte Buddy only knows how to process a provided `Class` by an adapter that implements the TypeDescription interface. The big advantage over this abstraction is that information on classes do not need to be provided by a `ClassLoader` but can be provided by any other sources.
+
+通过对 Java “热替换”特性的限制的认识，人们可能会认为，类型重定基底和类型重定义的唯一有意义的应用之处是在构建时。通过应用构建时间操作，可以断言，在初始类加载之前不会加载已处理的类，因为该类的加载是在 JVM 的不同实例中完成的。然而，Byte Buddy 同样能够处理尚未加载的类。为此，Byte Buddy 通过 Java 的反射 API 进行抽象，例如，一个 `Class` 实例在 Byte Buddy 内由一个 `TypeDescription` 实例来表示。事实上，Byte Buddy 只知道如何处理由实现 `TypeDescription` 接口的适配器提供的类。与此抽象相比，最大的优势在于，类的信息不需要由 `ClassLoader` 提供，而可以由任何其他来源提供。
+
+
 [{java_source_attr}]
 ----
 package foo;
