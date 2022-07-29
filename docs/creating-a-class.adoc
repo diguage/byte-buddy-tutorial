@@ -194,11 +194,24 @@ With this realization about the limits of Java's HotSwap feature, one might thin
 通过对 Java “热替换”特性的限制的认识，人们可能会认为，类型重定基底和类型重定义的唯一有意义的应用之处是在构建时。通过应用构建时间操作，可以断言，在初始类加载之前不会加载已处理的类，因为该类的加载是在 JVM 的不同实例中完成的。然而，Byte Buddy 同样能够处理尚未加载的类。为此，Byte Buddy 通过 Java 的反射 API 进行抽象，例如，一个 `Class` 实例在 Byte Buddy 内由一个 `TypeDescription` 实例来表示。事实上，Byte Buddy 只知道如何处理由实现 `TypeDescription` 接口的适配器提供的类。与此抽象相比，最大的优势在于，类的信息不需要由 `ClassLoader` 提供，而可以由任何其他来源提供。
 
 
+Byte Buddy provides a canonical manner for getting hold of a class's `TypeDescription` using a `TypePool`. A default implementation of such a pool is of course also provided. This `TypePool.Default` implementation parses the binary format of a class and represents it as the required `TypeDescription`. Similarly to a `ClassLoader` it maintains a cache for represented classes which is also customizable. Also, it normally retrieves the binary format of a class from a `ClassLoader`, however without instructing it to load this class.
+
+Byte Buddy 提供了一种使用 `TypePool` 获取类的 `TypeDescription` 的规范方式。当然也提供了这样一个此类型池的默认实现。`TypePool.Default` 实现解析类的二进制格式，并将其表示为所需的 `TypeDescription`。与 `ClassLoader` 类似，它为所表示的类维护一个缓存，这也是可定制的。此外，它通常从 `ClassLoader` 中检索类的二进制格式，但是无需指示加载此类。
+
+
+The Java virtual machine only loads a class on its first usage. As a consequence, we can for example safely redefine a class such as
+
+Java 虚拟机仅在第一次使用时加载类。因此，我们可以安全地重新定义一个类，例如
+
 [{java_source_attr}]
 ----
 package foo;
 class Bar { }
 ----
+
+right at program startup before running any other code:
+
+在程序启动时，在运行任何其他代码之前：
 
 [{java_source_attr}]
 ----
