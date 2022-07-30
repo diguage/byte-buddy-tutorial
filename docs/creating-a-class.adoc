@@ -229,6 +229,10 @@ class MyApplication {
 }
 ----
 
+By explicitly loading the redefined class before its first use in the assertion statement, we forestall the JVM's built-in class loading. This way, the redefined definition of `foo.Bar` is loaded and used throughout our application's runtime. Note however that we do not reference the class by a class literal when we use the `TypePool` to provide a description. If we did use a class literal for `foo.Bar`, the JVM would have loaded this class before we had a chance to redefine it and our redefinition attempt would be without effect. Also, note that when working with unloaded classes, we further need to specify a `ClassFileLocator` which allows to locate a class's class file. In the example above, we simply create a class file locator which scans the running application's class path for such files.
+
+通过在断言语句中、首次使用之前显式加载重定义类型，我们阻止了 JVM 内置的类加载。这样，经过类型重定义的 `foo.Bar`，就可以在应用程序的整个运行时被加载和使用。但是请注意，在使用 `TypePool` 提供类型描述时，并没有通过类名引用类。如果确实通过类名引用了类，则 JVM 在有机会进行重定义它之前就已经加载了这个类，那么类型重定义的尝试将无效。另外，请注意，在处理未加载的类时，我们还需要指定一个 `ClassFileLocator`，它允许定位类的类文件。在上面的示例中，我们只需创建一个类文件定位器，用于扫描正在运行的应用程序的类路径以查找此类文件。
+
 [#creating-java-agents]
 == 创建 Java Agents
 
