@@ -229,12 +229,18 @@ class MyApplication {
 }
 ----
 
+WARNING: 这个示例有错！已经在 GitHub 上提交了 Issue： https://github.com/raphw/byte-buddy/issues/1293[The example in "Working with unloaded classes" is wrong.^]。
+
 By explicitly loading the redefined class before its first use in the assertion statement, we forestall the JVM's built-in class loading. This way, the redefined definition of `foo.Bar` is loaded and used throughout our application's runtime. Note however that we do not reference the class by a class literal when we use the `TypePool` to provide a description. If we did use a class literal for `foo.Bar`, the JVM would have loaded this class before we had a chance to redefine it and our redefinition attempt would be without effect. Also, note that when working with unloaded classes, we further need to specify a `ClassFileLocator` which allows to locate a class's class file. In the example above, we simply create a class file locator which scans the running application's class path for such files.
 
 通过在断言语句中、首次使用之前显式加载重定义类型，我们阻止了 JVM 内置的类加载。这样，经过类型重定义的 `foo.Bar`，就可以在应用程序的整个运行时被加载和使用。但是请注意，在使用 `TypePool` 提供类型描述时，并没有通过类名引用类。如果确实通过类名引用了类，则 JVM 在有机会进行重定义它之前就已经加载了这个类，那么类型重定义的尝试将无效。另外，请注意，在处理未加载的类时，我们还需要指定一个 `ClassFileLocator`，它允许定位类的类文件。在上面的示例中，我们只需创建一个类文件定位器，用于扫描正在运行的应用程序的类路径以查找此类文件。
 
 [#creating-java-agents]
 == 创建 Java Agents
+
+When an application grows bigger and becomes more modular, applying such a transformation at a specific program point is of course a cumbersome constraint to enforce. And there is indeed a better way to apply such class redefinitions on demand. Using a Java agent, it is possible to directly intercept any class loading activity that is conducted within a Java application. A Java agent is implemented as a simple jar file with an entry point that is specified in this jar file's manifest file as it is described under the linked resource. Using Byte Buddy, the implementation of such an agent is straight forward by using an `AgentBuilder`. Assuming that we previously defined a simple annotation named `ToString`, it would be trivial to implement `toString` methods for all annotated classes simply by implementing the Agent's `premain` method as follows:
+
+当应用程序变得更大、更模块化时，在特定的程序点应用这样的转换当然是一个难以执行的约束。确实有更好的方法可以按需应用此类类型重定义。使用 https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html[Java Agent^]，可以直接拦截 Java 应用程序中执行的任何类加载活动。Java 代理被实现为一个简单的 Jar 文件，其入口点在该 Jar 文件的清单文件中指定，正如在链接资源中描述的那样。使用 Byte Buddy，通过使用 `AgentBuilder` 直接实现此类代理。假设我们以前定义了一个名为 `ToString` 的简单注解，那么只需 Java Agent 的 `premain` 方法，就可以为所有带注解的类实现 `toString` 方法。代码如下所示:
 
 [{java_source_attr}]
 ----
