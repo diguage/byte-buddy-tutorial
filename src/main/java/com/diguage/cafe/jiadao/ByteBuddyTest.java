@@ -1,14 +1,12 @@
 package com.diguage.cafe.jiadao;
 
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.description.type.TypeDescription;
-import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.ClassFileLocator;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.FixedValue;
-import net.bytebuddy.utility.JavaModule;
+import net.bytebuddy.pool.TypePool;
 import org.junit.jupiter.api.Test;
 
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -17,7 +15,7 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByteBuddyTest {
-//
+    //
 //    @Test
 //    public void test1() {
 //        DynamicType.Unloaded<Object> dynamicType = new ByteBuddy()
@@ -72,25 +70,27 @@ public class ByteBuddyTest {
 //        assertThat(foo.m()).isEqualTo("bar");
 //    }
 //
-//    // TODO 报错，好奇怪
-//    @Test
-//    public void test6() {
-//
-//        TypePool typePool = TypePool.Default.ofSystemLoader();
-//
-//        String quxFieldName = "qux";
-//        // TODO 示例里面显示是 Class，但是程序返回的不是 Class
-//        // TODO 加一句 .getLoaded() 就会返回 Class，但是还是不行
-//        DynamicType.Loaded<Object> barType = new ByteBuddy()
-//                .redefine(typePool.describe("com.diguage.cafe.jiadao.Bar").resolve(),
-//                        ClassFileLocator.ForClassLoader.ofSystemLoader())
-//                .defineField(quxFieldName, String.class)
-//                .make()
-//                .load(ClassLoader.getSystemClassLoader());
-//
-//        FieldList<FieldDescription.InDefinedShape> declaredFields = barType.getTypeDescription().getDeclaredFields();
-//        assertThat(declaredFields).isNotEmpty();
-//    }
+    public static class UnloadedBar {
+    }
+
+    @Test
+    public void test6() throws NoSuchFieldException {
+
+        TypePool typePool = TypePool.Default.ofSystemLoader();
+
+        String quxFieldName = "qux";
+        // TODO 示例里面显示是 Class，但是程序返回的不是 Class
+        // TODO 加一句 .getLoaded() 就会返回 Class，但是还是不行
+        Class<?> type = new ByteBuddy()
+                .redefine(typePool.describe("com.diguage.cafe.jiadao.ByteBuddyTest$UnloadedBar").resolve(),
+                        ClassFileLocator.ForClassLoader.ofSystemLoader())
+                .defineField(quxFieldName, String.class)
+                .make()
+                .load(ClassLoadingStrategy.BOOTSTRAP_LOADER, ClassLoadingStrategy.Default.WRAPPER)
+                .getLoaded();
+
+        assertThat(type.getDeclaredField(quxFieldName)).isNotNull();
+    }
 //
 //    /**
 //     * TODO 还没有实验
