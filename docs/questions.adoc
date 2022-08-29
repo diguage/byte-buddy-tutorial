@@ -1,0 +1,13 @@
+= 问题
+
+image::assets/images/java-instrumentation.jpeg[{image_attr}]
+
+. `ClassLoader` 的工作原理
+. Byte Buddy 的使用
+. 字节码热替换
+. 改造 OpenTelemetry 的代码，支持获取 SGM 的 TraceId 和 SpanId
+. 可以 OpenTelemetry 和阿尔萨斯的代码，直接抄他们的代码
+. 研究 OpenTelemetry
+. 怎么判断两段代码是否重复？可选方案：
+.. 抽象语法书
+.. 字节码
