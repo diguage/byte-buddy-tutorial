@@ -4,25 +4,31 @@
  * @author D瓜哥 · https://www.diguage.com
  */
 public class Example {
-    static {
-        float f = 0.0F + 5.0F;
-    }
-
     {
-        int i = 1 + 4;
-    }
-
-    {
-        long l = 2 + 5;
+        long l = 1L + 4L;
     }
 
     public Example() {
-
+        float f = 0.0F + 2.0F;
     }
 
     public Example(int i) {
-
+        double d = 0.0 + 1.0;
     }
+
+//    static {
+//        float f = 0.0F + 5.0F;
+//    }
+//
+
+//
+//    {
+//        long l = 2 + 5;
+//    }
+//
+
+//
+
 //    /**
 //     * 测试 boolean 型示例
 //     */
