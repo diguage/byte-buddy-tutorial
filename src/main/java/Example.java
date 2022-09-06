@@ -4,17 +4,24 @@
  * @author D瓜哥 · https://www.diguage.com
  */
 public class Example {
-    {
+    static {
         long l = 1L + 4L;
     }
-
-    public Example() {
-        float f = 0.0F + 2.0F;
-    }
-
-    public Example(int i) {
-        double d = 0.0 + 1.0;
-    }
+//    {
+//        long l = 1L + 4L;
+//    }
+//
+//    public Example() {
+//        float f = 0.0F + 2.0F;
+//    }
+//
+//    public Example(int i) {
+//        double d = 0.0 + 1.0;
+//    }
+//
+//    {
+//        int i = 1 << 17;
+//    }
 
 //    static {
 //        float f = 0.0F + 5.0F;
