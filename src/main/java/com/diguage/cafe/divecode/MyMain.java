@@ -19,6 +19,19 @@ public class MyMain {
     }
 
     public int foo(int a) {
+        System.out.println("hello foo");
         return a; // 修改为 return a + 100;
+    }
+
+    public void divzero() {
+        System.out.println("step 1");
+        int a = 1 / 0;
+        System.out.println("step 2");
+    }
+
+    public static void main(String[] args) {
+        MyMain object = new MyMain();
+        System.out.println(object.foo(1));
+        object.divzero();
     }
 }

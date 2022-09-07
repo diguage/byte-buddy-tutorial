@@ -4,13 +4,13 @@
  * @author D瓜哥 · https://www.diguage.com
  */
 public class Example {
-    static {
-        long l = 1L + 4L;
-    }
+
 //    {
 //        long l = 1L + 4L;
 //    }
-//
+
+    private static Object object = new Object();
+
 //    public Example() {
 //        float f = 0.0F + 2.0F;
 //    }
@@ -18,9 +18,25 @@ public class Example {
 //    public Example(int i) {
 //        double d = 0.0 + 1.0;
 //    }
-//
+
 //    {
 //        int i = 1 << 17;
+//    }
+
+    static {
+        double d = 0.0 + 1.0;
+    }
+
+    static {
+        double d = 3.0 + 5.0;
+    }
+//
+
+//
+//    public static void main(String[] args) {
+//        System.out.println("start to new Example");
+//        Example example = new Example();
+//        System.out.println("finish creating Example");
 //    }
 
 //    static {
