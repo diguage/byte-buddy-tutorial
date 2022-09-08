@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="description" content="Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。">
+<meta name="keywords" content="Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机">
+<meta name="author" content="D瓜哥">
+<title>Byte Buddy 教程 Alpha</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>.toc-current{font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+<script>var _hmt = _hmt || [];(function () {var hm = document.createElement("script");hm.src = "https://hm.baidu.com/hm.js?ae79ae5854e141fa6c9a217b5dcf0e45";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm, s);})();</script></head>
+<body id="creating-a-class" class="book toc2 toc-left">
+<div id="header">
+<h1>Byte Buddy 教程 <sup>Alpha</sup></h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com/" class="bare">https://www.diguage.com/</a></span><br>
+<span id="revnumber">v 0.1.0,</span>
+<span id="revdate">2017-07-24</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">目录</div>
+<p><span class="toc-root"><a href="index.html">Byte Buddy 教程 <sup>Alpha</sup></a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言</a>
+</li>
+<li><a href="preliminary.html">为什么需要在运行时生成代码？</a>
+</li>
+<li><a href="creating-a-class.html"><span class="toc-current">创建一个类</span></a>
+<ul class="sectlevel2">
+<li><a href="creating-a-class.html#domain-specific-language-and-immutability">领域特定语言和不变性</a>
+</li>
+<li><a href="creating-a-class.html#redefining-and-rebasing-existing-classes">重新定义或者重定基底已经存在的类</a>
+</li>
+<li><a href="creating-a-class.html#loading-a-class">加载类</a>
+</li>
+<li><a href="creating-a-class.html#reloading-a-class">重新加载类</a>
+</li>
+<li><a href="creating-a-class.html#working-with-unloaded-classes">操作没有加载的类</a>
+</li>
+<li><a href="creating-a-class.html#creating-java-agents">创建 Java Agents</a>
+</li>
+<li><a href="creating-a-class.html#loading-classes-in-android-applications">在 Android 应用中加载类</a>
+</li>
+<li><a href="creating-a-class.html#working-with-generic-types">使用泛型类</a>
+</li>
+</ul>
+</li>
+<li><a href="fields-and-methods.html">属性和方法</a>
+</li>
+<li><a href="annotations.html">注解</a>
+</li>
+<li><a href="custom-instrumentation.html">定制化仪表</a>
+</li>
+<li><a href="license.html">附录 B: 版权声明</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="creating-a-class"><a class="anchor" href="#creating-a-class"></a>创建一个类</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>任何一个由 Byte Buddy 创建的类型都是通过 <code>ByteBuddy</code> 类的实例来完成的。通过简单地调用 <code>new ByteBuddy()</code> 就可以创建一个新实例，然后就可以出发了。希望你使用一个集成开发环境，这样在调用一个给定实例的方法时就能得到相应的提示。这样，你的集成开发环境就会引导你完成相应的方法调用，防止手动在 Byte Buddy 文档中查阅某个类的 API。正如之前所说，Byte Buddy 提供了一个领域特定语言，这样就可以尽可能地提高人类可读性。集成开发环境的提示在大部分情况下会指引你到正确的方向。说的够多了，让我们在 Java 编程环境中创建第一个类吧：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="nc">DynamicType</span><span class="o">.</span><span class="na">Unloaded</span><span class="o">&lt;?&gt;</span> <span class="n">dynamicType</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>正如前面所设想的，上面的示例代码会创建一个继承至 <code>Object</code> 类型的类。这个动态创建的类型与直接扩展 <code>Object</code> 并且没有实现任何方法、属性和构造函数的类型是等价的。你可能已经注意到，我们都没有命名动态生成的类型，通常在定义 Java 类时却是必须的。当然，你也可以很容易地明确地命名这个类型：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="nc">DynamicType</span><span class="o">.</span><span class="na">Unloaded</span><span class="o">&lt;?&gt;</span> <span class="n">dynamicType</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"example.Type"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>如果没有明确的命名会怎么样呢？Byte Buddy 与 <a href="https://en.wikipedia.org/wiki/Convention_over_configuration" target="_blank" rel="noopener">约定大于配置</a> 息息相关，为你提供了我们认为比较方便的默认配置。至于类型命名，Byte Buddy 的默认配置提供了 <code>NamingStrategy</code>，它基于动态类型的超类名称来随机生成类名。此外，名称定义在与父类相同的包下，这样父类的包级访问权限的方法对动态类型也可见。如果你将示例子类命名为 <code>example.Foo</code>，那么生成的名称将会类似于 <code>example.FooByteBuddy1376491271</code>，这里的数字序列是随机的。这个规则的例外情况就是当子类是从 <code>java.lang</code> 包下的类扩展时，就是 <code>Object</code> 所在的包。Java 的安全模型不允许自定义类型存放在这个命名空间下。因此，默认命名策略下，这些类型名称将会冠以 <code>net.bytebuddy.renamed</code> 的前缀。</p>
+</div>
+<div class="paragraph">
+<p>默认行为也许对你来说并不方便。感谢约定大于配置原则，你总是可以根据你的需要来选择默认行为。这正是 <code>ByteBuddy</code> 的优越之处。通过 <code>new ByteBuddy()</code> 创建实例，你就创建了整套的默认配置。通过调用在这个配置上的方法，你就可以根据你的需要来订制它。让我们试试：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="code"><pre><span class="nc">DynamicType</span><span class="o">.</span><span class="na">Unloaded</span><span class="o">&lt;?&gt;</span> <span class="n">dynamicType</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="k">new</span> <span class="nc">NamingStrategy</span><span class="o">.</span><span class="na">AbstractBase</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="nc">String</span> <span class="nf">name</span><span class="o">(</span><span class="nc">TypeDescription</span> <span class="n">superClass</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"i.love.ByteBuddy."</span> <span class="o">+</span> <span class="n">superClass</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">();</span>
+    <span class="o">}</span>
+  <span class="o">})</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在上面这里例子中，我们创建了一个新的配置，在类型命名方面，不同于默认配置。匿名类被简单实现为连接 <code>i.love.ByteBuddy</code> 和基类的简要名称。当扩展 <code>Object</code> 类型时，动态类将被命名为 <code>i.love.ByteBuddy.Object</code>。当创建自己的命名策略时，需要特别小心。Java 虚拟机就是使用名字来区分不同的类型的，这正是为什么要避免命名冲突的原因。如果你需要定制命名行为，请考虑使用 Byte Buddy 内置的 <code>NamingStrategy.SuffixingRandom</code>，你可以通过引入比默认对你应用更有意义的前缀来定制命名行为。</p>
+</div>
+<div class="sect2">
+<h3 id="domain-specific-language-and-immutability"><a class="anchor" href="#domain-specific-language-and-immutability"></a>领域特定语言和不变性</h3>
+<div class="paragraph">
+<p>在看过 Byte Buddy 这种领域特定语言的实际效果之后，我们需要简要看一下这种语言的实现方式。有一个细节需要特别注意，这个语言是围绕 <a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="noopener">不可变对象</a> 构建的。事实上，Byte Buddy 中，几乎所有的类都被构建成不可变的；极少数情况，我们不可能把对象构建成不可变的，我们会在该类的文档中明确指出。如果你为 Byte Buddy 实现自定义功能，我们建议你遵守此原则。</p>
+</div>
+<div class="paragraph">
+<p>作为所提到的不可变性的含义，例如配置 <code>ByteBuddy</code> 实例时，一定要小心。你也许会犯下面的错误：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="nc">ByteBuddy</span> <span class="n">byteBuddy</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">();</span>
+<span class="n">byteBuddy</span><span class="o">.</span><span class="na">withNamingStrategy</span><span class="o">(</span><span class="k">new</span> <span class="nc">NamingStrategy</span><span class="o">.</span><span class="na">SuffixingRandom</span><span class="o">(</span><span class="s">"suffix"</span><span class="o">));</span>
+<span class="nc">DynamicType</span><span class="o">.</span><span class="na">Unloaded</span><span class="o">&lt;?&gt;</span> <span class="n">dynamicType</span> <span class="o">=</span> <span class="n">byteBuddy</span><span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">make</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>你或许希望使用 <code>new NamingStrategy.SuffixingRandom("suffix")</code> 来自定义动态类型的命名策略。不是修改存储在 <code>byteBuddy</code> 变量中的实例，调用 <code>withNamingStrategy</code> 方法返回一个自定义的 <code>ByteBuddy</code> 实例，但是它却直接被丢弃了。结果，还是使用原来创建的默认配置来创建动态类型。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="redefining-and-rebasing-existing-classes"><a class="anchor" href="#redefining-and-rebasing-existing-classes"></a>重新定义或者重定基底已经存在的类</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong>D瓜哥注</strong></p>
+</div>
+<div class="paragraph">
+<p><strong><code>type rebasing</code></strong> 不知如何翻译是好，暂且翻译为“<strong>重定基底</strong>”。下文中，根据语句通顺需要，偶尔也翻译成“<strong>重定义</strong>”。如果有好的翻译，欢迎给发PR。</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>到目前为止，我们仅仅演示了如何使用 Byte Buddy 来创建已知类的子类。相同的 API 还可用于增强已有类。增加已有类有两种方式：</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">类型重定义（type redefinition）</dt>
+<dd>
+<p>当重定义一个类时，Byte Buddy 可以对一个已有的类添加属性和方法，或者删除已经存在的方法实现。如果使用其他的方法实现替换已经存在的方法实现，则原来存在的方法实现就会消失。例如，我们重定义下面这个类型</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="nc">String</span> <span class="nf">bar</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">"bar"</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>从 <code>bar</code> 方法返回 <code>"qux"</code>，那么该方法原来返回的 <code>"bar"</code> 等信息就会都被丢失掉。</p>
+</div>
+</dd>
+<dt class="hdlist1">类型重定基底（type rebasing）</dt>
+<dd>
+<p>当重定基底一个类时，Byte Buddy 保存基底类所有方法的实现。当 Byte Buddy 如执行类型重定义时，它将所有这些方法实现复制到具有兼容签名的重新命名的私有方法中，而不是抛弃重写的方法。这样，就没有实现会被丢失。重定义的方法可以继续通过它们重命名过的名称调用原来的方法。通过这种方式，上述 <code>Foo</code> 类就会被重定义成下面这个样子：</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="nc">String</span> <span class="nf">bar</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">"foo"</span> <span class="o">+</span> <span class="n">bar$original</span><span class="o">();</span> <span class="o">}</span>
+  <span class="kd">private</span> <span class="nc">String</span> <span class="n">bar$original</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">"bar"</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>原来返回 <code>bar</code> 的方法被保存到了另外一个方法里，因此还可以访问。当重定基底一个类时，Byte Buddy 对待所有方法定义就像你定义一个子类一样，例如，如果你想调用重定义方法的超类方法是，它会调用被重定义的方法。<em>相反，它最终将这个假设的超级类别变成了上面显示的重定义类型。</em></p>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>任何重定基底、重定义或子类都是使用相同的 API 来执行，接口由 <code>DynamicType.Builder</code> 来定义。<em>这样，可以将类定义为子类，然后更改代码来替换重定类。</em>你只需要修改 Byte Buddy 领域特定语言的一个单词就能达到这个目的。这样，在定义的未来阶段，你就可以透明地切换任何一种方法：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">().</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="k">new</span> <span class="nf">ByteBuddy</span><span class="o">().</span><span class="na">redefine</span><span class="o">(</span><span class="nc">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="k">new</span> <span class="nf">ByteBuddy</span><span class="o">().</span><span class="na">rebase</span><span class="o">(</span><span class="nc">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>这在本教程的其余部分都有所解释。因为定义子类对于 Java 开发人员来说是如此地熟悉，所以，接下来的所有解释以及 Byte Buddy 领域特定语言的实例都是用创建子类来演示。但是，请记住，所有类可以类似地通过重定义或重定基类来定义。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="loading-a-class"><a class="anchor" href="#loading-a-class"></a>加载类</h3>
+<div class="paragraph">
+<p>到目前为止，我们只定义并创建了一个动态类型，但是我们没有使用它。由 Byte Buddy 创建的类型使用 <code>DynamicType.Unloaded</code> 的实例表示。顾名思义，这些类型不会加载到 Java 虚拟机中。相反，由 Byte Buddy 创建的类以二进制，Java 类文件格式形式表示。这样，您可以决定要使用生成的类型做什么。例如，您可能希望从构建脚本运行 Byte Buddy，该脚本仅在部署之前生成 Java 类以增强应用程序。为此，<code>DynamicType.Unloaded</code> 类允许提取表示动态类型的字节数组。为方便起见，该类型还提供了一个 <code>saveIn(File)</code> 方法，可以将类存储在给定的文件夹中。此外，它允许您使用 <code>inject(File)</code> 方法将类注入到现有的 Jar 文件中。</p>
+</div>
+<div class="paragraph">
+<p>尽管直接访问类的二进制形式简单直接，但不幸的是，加载类型却非常复杂。在 Java 中，所有的类都使用 <code>ClassLoader</code> 来加载。这种类加载器的一个例子是引导类加载器，它负责加载 Java 类库中发布的类。另一方面，系统类加载器负责加载在 Java 应用程序的类路径上的类。显然，这些先前存在的类加载器都不知道我们创建的任何动态类。为了解决这个问题，我们必须找到能加载运行时生成类的其他可能性。 Byte Buddy 通过不同的方法提供解决方案：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>我们简单地创建一个新的 <code>ClassLoader</code>，并明确地告知它一个特定动态创建的类的存在位置。因为 Java 类加载器是以层次结构组织的，所以我们将此类加载器定义为运行中的 Java 应用程序中已经存在的给定类加载器的子类。这样，运行的Java程序的所有类型对于使用新的 <code>ClassLoader</code> 加载的动态类型都是可见的。</p>
+</li>
+<li>
+<p>通常，Java 类加载器在尝试直接加载给定名称的类型之前查询其双亲 <code>ClassLoader</code>。<em>这意味着类加载器通常不会加载类型，以防其父类加载程序知道具有相同名称的类型。</em>为了这个目的，Byte Buddy提供了一个子类优先的类加载器的创建功能，它尝试在查询父类之前自己加载一个类型。除此之外，这种方法类似于上述方法。请注意，此方法不会覆盖父类加载器的类型，<em>而是影响此其他类型。</em></p>
+</li>
+<li>
+<p>最后，我们可以使用反射来将类型注入到现有的 <code>ClassLoader</code> 中。通常，类加载器被要求以其名称提供给定类型。使用反射，我们可以围绕这个原理，并调用一个protected方法，将类添加到类加载器中，而类加载器实际上并不知道如何定位这个动态类。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>不幸的是，上面的方式有两个缺点：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>如果我们创建一个新的 <code>ClassLoader</code>，这个类加载器就会定义一个新的命名空间。有意义的是，可以加载两个具有相同名称的类，只要这些类由两个不同的类加载器加载即可。即使这两个类代表相同的类实现，这两个类也不会被 Java 虚拟机视为相等。这个等式的规则也适用于Java包。这意味着一个类 <code>example.Foo</code> 不能访问另一个类 <code>example.Bar</code> 的包私有级的方法，如果两个类不是由相同的类加载器加载的话。另外，如果 <code>exam​​ple.Bar</code> 扩展 <code>example.Foo</code>，任何覆盖的包私有级的方法将变得不起作用，将会委托给原始实现。</p>
+</li>
+<li>
+<p>每当加载类时，一旦引用另一种类型的代码段被解析，其类加载器就会查找该类中引用的任何类型。这个查找会委托给同一个类加载器。想象一下，我们动态创建两个类 <code>example.Foo</code> 和 <code>example.Bar</code>。如果我们将 <code>example.Foo</code> 注入到一个现有的类加载器中，这个类加载器可能会尝试找到 <code>example.Bar</code>。然而，这种查找会失败，因为后一类是动态创建的，对于我们刚注入 <code>example.Foo</code> 类的类加载器是不可访问的。因此，<em>反射方法不能用于在类加载期间变得有效的循环依赖性的类。</em>幸运的是，大多数 Java 虚拟机实现会在第一次主动使用时惰性地解析引用的类，这就是为什么类注入通常可以工作而没有这些限制。另外在实践中，由 Byte Buddy 创建的类通常不会受到这种循环的影响。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>您可能会考虑到遇到循环依赖关系的可能性与您一次创建一个动态类型相关联。</em>但是，动态创建类型可能会触发所谓的辅助类型的创建。这些类型由 Byte Buddy 自动创建，以提供对您正在创建的动态类型来访问。我们在下一节中详细了解辅助类型，现在不用担心。但是，由于这个原因，我们建议您通过创建一个特定的 <code>ClassLoader</code> 来加载动态创建的类，而不是将它们注入现有类。</p>
+</div>
+<div class="paragraph">
+<p>创建 <code>DynamicType.Unloaded</code> 之后，可以使用 <code>ClassLoadingStrategy</code> 加载此类型。<em>如果没有提供这样的策略，Byte Buddy 会根据提供的类加载器推测出这样的策略，并为引导类加载器创建一个新的类加载器，其中不能使用反射注入类型，否则为默认值。</em>Byte Buddy提供了几种类加载策略，其中每种都遵循上述概念之一。这些策略定义在 <code>ClassLoadingStrategy.Default</code> 中，其中 <code>WRAPPER</code> 策略创建一个新的包装 <code>ClassLoader</code>；<code>CHILD_FIRST</code> 策略创建一个类似于第一个子类优先的类加载器；<code>INJECTION</code> 策略使用反射注入动态类型。 <code>WRAPPER</code> 和 <code>CHILD_FIRST</code> 策略也可以在所谓的<em>清单版本</em>中使用，即使在加载类之后，类型的二进制格式也被保留。这些替代版本使得类加载器的类的二进制表示可以通过 <code>ClassLoade::getResourceAsStream</code> 方法访问。但是，请注意，这需要这些类加载器来维护对类的完整二进制表示的引用，这将占用 Java 虚拟机堆上的空间。因此，如果您打算实际访问二进制格式，则应仅使用清单版本。由于 <code>INJECTION</code> 策略通过反射工作，并且无法更改 <code>ClassLoader::getResourceAsStream</code> 方法的语义，因此它在清单版本中自然不可用。</p>
+</div>
+<div class="paragraph">
+<p>我们来看看类加载的实际操作：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="nc">Class</span><span class="o">&lt;?&gt;</span> <span class="n">type</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getClassLoader</span><span class="o">(),</span> <span class="nc">ClassLoadingStrategy</span><span class="o">.</span><span class="na">Default</span><span class="o">.</span><span class="na">WRAPPER</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">getLoaded</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在上面的例子中，我们创建并加载了一个类。我们使用 <code>WRAPPER</code> 策略来加载适合大多数情况的类，就像我们之前提到的那样。最后，<code>getLoaded</code> 方法返回一个 Java <code>Class</code> 的实例，它就表示现在加载的动态类。</p>
+</div>
+<div class="paragraph">
+<p><em>请注意，加载类时，通过应用当前执行上下文的 <code>ProtectionDomain</code> 来执行预定义的类加载策略。或者，所有默认策略通过调用 <code>withProtectionDomain</code> 方法来提供明确保护域的规范。使用安全管理员（security manager）或使用已签名的 Jar 中定义的类时，定义显式保护域很重要。</em></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="reloading-a-class"><a class="anchor" href="#reloading-a-class"></a>重新加载类</h3>
+<div class="paragraph">
+<p>在前面章节，我们学习了如何使用 Byte Buddy 去重定义或者重定基底一个已存在的类。然而，在 Java 程序的执行过程中，通常不可能保证特定的类没有被加载。（此外，Byte Buddy目前只将加载的类作为它的参数，这将在未来的版本中改变，现有的API可以用于同等地处理未加载的类。）由于 Java 虚拟机的“热替换（HotSwap）”特性，即使在加载后也可以重新定义现有类。通过 Byte Buddy 的 <code>ClassRelodingsTrategy</code> 即可使用此功能。让我们通过重新定义类 <code>Foo</code> 来演示这种策略：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="nc">String</span> <span class="nf">m</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">"foo"</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Bar</span> <span class="o">{</span>
+  <span class="nc">String</span> <span class="nf">m</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">"bar"</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>使用 Byte Buddy，我们现在可以轻松地将类 <code>Foo</code> 重新定义为 <code>Bar</code>。使用热替换，这个重定义甚至可以应用于先前存在的实例：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="code"><pre><span class="nc">ByteBuddyAgent</span><span class="o">.</span><span class="na">install</span><span class="o">();</span>
+<span class="nc">Foo</span> <span class="n">foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Foo</span><span class="o">();</span>
+<span class="k">new</span> <span class="nf">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">redefine</span><span class="o">(</span><span class="nc">Bar</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="nc">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="nc">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getClassLoader</span><span class="o">(),</span> <span class="nc">ClassReloadingStrategy</span><span class="o">.</span><span class="na">fromInstalledAgent</span><span class="o">());</span>
+
+<span class="n">assertThat</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="na">m</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="s">"bar"</span><span class="o">));</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+为了方便对比原文与翻译，以求有志之士改进翻译，以下增加英语原文，原文下面增加翻译。
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>HotSwap is only accessible using a <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.instrument/java/lang/instrument/package-summary.html" target="_blank" rel="noopener">so-called Java agent</a>. Such an agent can be installed by either specifying it on the startup of the Java virtual machine by using the <code>-javaagent</code> parameter where the parameter&#8217;s argument needs to be Byte Buddy&#8217;s agent jar which can be <a href="https://search.maven.org/search?q=a:byte-buddy-agent" target="_blank" rel="noopener">downloaded from Maven Central</a>. However, when a Java application is run from a JDK-installation of the Java virtual machine, Byte Buddy can load a Java agent even after application startup by <code>ByteBuddyAgent.installOnOpenJDK()</code>. Because class redefinition is mostly used to implement tooling or testing, this can be a very convenient alternative. Since Java 9, an agent installation is also possible at runtime without a JDK-installation.</p>
+</div>
+<div class="paragraph">
+<p>热替换仅能通过所谓的 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.instrument/java/lang/instrument/package-summary.html" target="_blank" rel="noopener">Java Agent</a> 进行访问。<em>可以通过使用 <code>-javaagent</code> 参数在Java 虚拟机的启动时指定 Java Agent，其中参数值是使用 Byte Buddy 开发的 Jar 包，而 Byte Buddy 相关依赖则可以从 <a href="https://search.maven.org/search?q=a:byte-buddy-agent" target="_blank" rel="noopener">Maven Central</a> 下载。</em>然而，当 Java 应用程序是在从 JDK 安装的 Java 虚拟机中运行时，Byte Buddy 甚至可以通过 <code>ByteBuddyAgent.installOnOpenJDK()</code> 在启动应用程序后加载 Java Agent。因为类重定义主要用于实现工具或测试，所以这是一种非常方便的替代方法。从 Java 9 开始，在运行时不需要 JDK 安装也可以进行代理安装。</p>
+</div>
+<div class="paragraph">
+<p>One thing that might first appear counter-intuitive about the above example is the fact that Byte Buddy is instructed to redefine the <code>Bar</code> type where the <code>Foo</code> type is eventually redefined. The Java virtual machine identifies types by their name and a class loader. Therefore, by renaming <code>Bar</code> to <code>Foo</code> and applying this definition, we eventually redefine the type we renamed <code>Bar</code> into. It is of course equally possible to redefine Foo directly without renaming a different type.</p>
+</div>
+<div class="paragraph">
+<p>关于上面的示例，首先看起来可能与直觉相反的一件事是，Byte Buddy 被指示重新定义 <code>Bar</code> 类型，而 <code>Foo</code> 类型最终被重新定义。Java 虚拟机通过类型的名称和类加载器来识别类型。因此，通过将 <code>Bar</code> 重命名为 <code>Foo</code> 并应用此定义，我们最终重新定义了将 <code>Bar</code> 重命名为的类型。当然，同样可以直接重新定义 <code>Foo</code>，而无需重命名其他类型。</p>
+</div>
+<div class="paragraph">
+<p>Using Java&#8217;s HotSwap feature, there is however one huge drawback. Current implementations of HotSwap require that the redefined classes apply the same class schema both before and after a class redefinition. This means that it is not allowed to add methods or fields when reloading classes. We already discussed that Byte Buddy defines copies of the original methods for any rebased class such that class rebasing does not work for the <code>ClassReloadingStrategy</code>. Also, class redefinition does not work for classes with an explicit class initializer method (a static block within a class) because this initializer needs to be copied into an extra method as well. Unfortunately OpenJDK has withdrawn from <a href="https://openjdk.org/jeps/159" target="_blank" rel="noopener">extending HotSwap functionality</a>, so there is no way to work around this limitation using the HotSwap feature. In the mean time, Byte Buddy&#8217;s HotSwap support can be used for corner-cases where it seems useful. Otherwise, class rebasing and redefinition can be a convenient feature when enhancing existing classes from for example a build script.</p>
+</div>
+<div class="paragraph">
+<p>然而，使用 Java 的热交换功能，有一个巨大的缺点。当前的热替换实现要求重定义的类在重定义之前和之后都应用相同的模式。这意味着在重载类时不允许添加方法或字段。我们已经讨论过，Byte Buddy 为任何重定基类定义了原始方法的副本，这样重定基底的类，对于 <code>ClassReloadingStrategy</code> 来说，都是不适用的。同样，类重定义不适用于具有显式类初始化器方法(类中的静态块)的类，因为这个初始化器还需要复制到一个额外的方法中。不幸的是，OpenJDK 已经退出了 <a href="https://openjdk.org/jeps/159" target="_blank" rel="noopener">对热替换功能的扩展</a>，因此使用热替换功能就无法绕过这一限制。同时，Byte Buddy的热替换对于一些极端情况，似乎特别有用。同时，当增加现有类时，比如一个构建脚本，类的重定基底和类的重定义将是一个非常方便的特效。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="working-with-unloaded-classes"><a class="anchor" href="#working-with-unloaded-classes"></a>操作没有加载的类</h3>
+<div class="paragraph">
+<p>With this realization about the limits of Java&#8217;s HotSwap feature, one might think that the only meaningful application of the <code>rebase</code> and <code>redefinition</code> instructions would be during build time. By applying build-time manipulation, one can assert that a processed class is not loaded before its initial class loading simply because this class loading is accomplished in a different instance of the JVM. Byte Buddy is however equally capable of working with classes that were not yet loaded. For this, Byte Buddy abstracts over Java&#8217;s reflection API such that a <code>Class</code> instance is for example internally represented by an instance of a <code>TypeDescription</code>. As a matter of fact, Byte Buddy only knows how to process a provided <code>Class</code> by an adapter that implements the TypeDescription interface. The big advantage over this abstraction is that information on classes do not need to be provided by a <code>ClassLoader</code> but can be provided by any other sources.</p>
+</div>
+<div class="paragraph">
+<p>通过对 Java “热替换”特性的限制的认识，人们可能会认为，类型重定基底和类型重定义的唯一有意义的应用之处是在构建时。通过应用构建时间操作，可以断言，在初始类加载之前不会加载已处理的类，因为该类的加载是在 JVM 的不同实例中完成的。然而，Byte Buddy 同样能够处理尚未加载的类。为此，Byte Buddy 通过 Java 的反射 API 进行抽象，例如，一个 <code>Class</code> 实例在 Byte Buddy 内由一个 <code>TypeDescription</code> 实例来表示。事实上，Byte Buddy 只知道如何处理由实现 <code>TypeDescription</code> 接口的适配器提供的类。与此抽象相比，最大的优势在于，类的信息不需要由 <code>ClassLoader</code> 提供，而可以由任何其他来源提供。</p>
+</div>
+<div class="paragraph">
+<p>Byte Buddy provides a canonical manner for getting hold of a class&#8217;s <code>TypeDescription</code> using a <code>TypePool</code>. A default implementation of such a pool is of course also provided. This <code>TypePool.Default</code> implementation parses the binary format of a class and represents it as the required <code>TypeDescription</code>. Similarly to a <code>ClassLoader</code> it maintains a cache for represented classes which is also customizable. Also, it normally retrieves the binary format of a class from a <code>ClassLoader</code>, however without instructing it to load this class.</p>
+</div>
+<div class="paragraph">
+<p>Byte Buddy 提供了一种使用 <code>TypePool</code> 获取类的 <code>TypeDescription</code> 的规范方式。当然也提供了这样一个此类型池的默认实现。<code>TypePool.Default</code> 实现解析类的二进制格式，并将其表示为所需的 <code>TypeDescription</code>。与 <code>ClassLoader</code> 类似，它为所表示的类维护一个缓存，这也是可定制的。此外，它通常从 <code>ClassLoader</code> 中检索类的二进制格式，但是无需指示加载此类。</p>
+</div>
+<div class="paragraph">
+<p>The Java virtual machine only loads a class on its first usage. As a consequence, we can for example safely redefine a class such as</p>
+</div>
+<div class="paragraph">
+<p>Java 虚拟机仅在第一次使用时加载类。因此，我们可以安全地重新定义一个类，例如</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="kn">package</span> <span class="nn">foo</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">Bar</span> <span class="o">{</span> <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>right at program startup before running any other code:</p>
+</div>
+<div class="paragraph">
+<p>在程序启动时，在运行任何其他代码之前：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">MyApplication</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+    <span class="nc">TypePool</span> <span class="n">typePool</span> <span class="o">=</span> <span class="nc">TypePool</span><span class="o">.</span><span class="na">Default</span><span class="o">.</span><span class="na">ofSystemLoader</span><span class="o">();</span>
+    <span class="nc">Class</span> <span class="n">type</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">redefine</span><span class="o">(</span><span class="n">typePool</span><span class="o">.</span><span class="na">describe</span><span class="o">(</span><span class="s">"foo.Bar"</span><span class="o">).</span><span class="na">resolve</span><span class="o">(),</span> <span class="c1">// do not use 'Bar.class'</span>
+                <span class="nc">ClassFileLocator</span><span class="o">.</span><span class="na">ForClassLoader</span><span class="o">.</span><span class="na">ofClassPath</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">defineField</span><span class="o">(</span><span class="s">"qux"</span><span class="o">,</span> <span class="nc">String</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="c1">// we learn more about defining fields later</span>
+      <span class="o">.</span><span class="na">make</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="nc">ClassLoadingStrategy</span><span class="o">.</span><span class="na">BOOTSTRAP_LOADER</span><span class="o">,</span> <span class="nc">ClassLoadingStrategy</span><span class="o">.</span><span class="na">Default</span><span class="o">.</span><span class="na">WRAPPER</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">getLoaded</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">type</span><span class="o">.</span><span class="na">getDeclaredField</span><span class="o">(</span><span class="s">"qux"</span><span class="o">),</span> <span class="n">notNullValue</span><span class="o">());</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+这个示例有错！已经在 GitHub 上提交了 Issue： <a href="https://github.com/raphw/byte-buddy/issues/1293" target="_blank" rel="noopener">The example in "Working with unloaded classes" is wrong.</a>。
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>By explicitly loading the redefined class before its first use in the assertion statement, we forestall the JVM&#8217;s built-in class loading. This way, the redefined definition of <code>foo.Bar</code> is loaded and used throughout our application&#8217;s runtime. Note however that we do not reference the class by a class literal when we use the <code>TypePool</code> to provide a description. If we did use a class literal for <code>foo.Bar</code>, the JVM would have loaded this class before we had a chance to redefine it and our redefinition attempt would be without effect. Also, note that when working with unloaded classes, we further need to specify a <code>ClassFileLocator</code> which allows to locate a class&#8217;s class file. In the example above, we simply create a class file locator which scans the running application&#8217;s class path for such files.</p>
+</div>
+<div class="paragraph">
+<p>通过在断言语句中、首次使用之前显式加载重定义类型，我们阻止了 JVM 内置的类加载。这样，经过类型重定义的 <code>foo.Bar</code>，就可以在应用程序的整个运行时被加载和使用。但是请注意，在使用 <code>TypePool</code> 提供类型描述时，并没有通过类名引用类。如果确实通过类名引用了类，则 JVM 在有机会进行重定义它之前就已经加载了这个类，那么类型重定义的尝试将无效。另外，请注意，在处理未加载的类时，我们还需要指定一个 <code>ClassFileLocator</code>，它允许定位类的类文件。在上面的示例中，我们只需创建一个类文件定位器，用于扫描正在运行的应用程序的类路径以查找此类文件。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="creating-java-agents"><a class="anchor" href="#creating-java-agents"></a>创建 Java Agents</h3>
+<div class="paragraph">
+<p>When an application grows bigger and becomes more modular, applying such a transformation at a specific program point is of course a cumbersome constraint to enforce. And there is indeed a better way to apply such class redefinitions on demand. Using a Java agent, it is possible to directly intercept any class loading activity that is conducted within a Java application. A Java agent is implemented as a simple jar file with an entry point that is specified in this jar file&#8217;s manifest file as it is described under the linked resource. Using Byte Buddy, the implementation of such an agent is straight forward by using an <code>AgentBuilder</code>. Assuming that we previously defined a simple annotation named <code>ToString</code>, it would be trivial to implement <code>toString</code> methods for all annotated classes simply by implementing the Agent&#8217;s <code>premain</code> method as follows:</p>
+</div>
+<div class="paragraph">
+<p>当应用程序变得更大、更模块化时，在特定的程序点应用这样的转换当然是一个难以执行的约束。确实有更好的方法可以按需应用此类类型重定义。使用 <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html" target="_blank" rel="noopener">Java Agent</a>，可以直接拦截 Java 应用程序中执行的任何类加载活动。Java 代理被实现为一个简单的 Jar 文件，其入口点在该 Jar 文件的清单文件中指定，正如在链接资源中描述的那样。使用 Byte Buddy，通过使用 <code>AgentBuilder</code> 直接实现此类代理。假设我们以前定义了一个名为 <code>ToString</code> 的简单注解，那么只需 Java Agent 的 <code>premain</code> 方法，就可以为所有带注解的类实现 <code>toString</code> 方法。代码如下所示:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">ToStringAgent</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">premain</span><span class="o">(</span><span class="nc">String</span> <span class="n">arguments</span><span class="o">,</span> <span class="nc">Instrumentation</span> <span class="n">instrumentation</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">new</span> <span class="nc">AgentBuilder</span><span class="o">.</span><span class="na">Default</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">isAnnotatedWith</span><span class="o">(</span><span class="nc">ToString</span><span class="o">.</span><span class="na">class</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">transform</span><span class="o">(</span><span class="k">new</span> <span class="nc">AgentBuilder</span><span class="o">.</span><span class="na">Transformer</span><span class="o">()</span> <span class="o">{</span>
+      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="nc">DynamicType</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">transform</span><span class="o">(</span><span class="nc">DynamicType</span><span class="o">.</span><span class="na">Builder</span> <span class="n">builder</span><span class="o">,</span>
+                                              <span class="nc">TypeDescription</span> <span class="n">typeDescription</span><span class="o">,</span>
+                                              <span class="nc">ClassLoader</span> <span class="n">classloader</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">named</span><span class="o">(</span><span class="s">"toString"</span><span class="o">))</span>
+                      <span class="o">.</span><span class="na">intercept</span><span class="o">(</span><span class="nc">FixedValue</span><span class="o">.</span><span class="na">value</span><span class="o">(</span><span class="s">"transformed"</span><span class="o">));</span>
+      <span class="o">}</span>
+    <span class="o">}).</span><span class="na">installOn</span><span class="o">(</span><span class="n">instrumentation</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="loading-classes-in-android-applications"><a class="anchor" href="#loading-classes-in-android-applications"></a>在 Android 应用中加载类</h3>
+
+</div>
+<div class="sect2">
+<h3 id="working-with-generic-types"><a class="anchor" href="#working-with-generic-types"></a>使用泛型类</h3>
+
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="preliminary.html">为什么需要在运行时生成代码？</a> | ↑ Up: <a href="index.html">Byte Buddy 教程 &lt;sup&gt;Alpha&lt;/sup</a>&gt; | Next: <a href="fields-and-methods.html">属性和方法</a> →</p>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+V 0.1.0<br>
+最后更新时间 2022-09-08 01:34:25 UTC
+</div>
+</div>
+</body>
+</html>

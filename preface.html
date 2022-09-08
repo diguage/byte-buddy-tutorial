@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="description" content="Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。">
+<meta name="keywords" content="Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机">
+<meta name="author" content="D瓜哥">
+<title>Byte Buddy 教程 Alpha</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<style>.toc-current{font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+<script>var _hmt = _hmt || [];(function () {var hm = document.createElement("script");hm.src = "https://hm.baidu.com/hm.js?ae79ae5854e141fa6c9a217b5dcf0e45";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm, s);})();</script></head>
+<body id="preface" class="book toc2 toc-left">
+<div id="header">
+<h1>Byte Buddy 教程 <sup>Alpha</sup></h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com/" class="bare">https://www.diguage.com/</a></span><br>
+<span id="revnumber">v 0.1.0,</span>
+<span id="revdate">2017-07-24</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">目录</div>
+<p><span class="toc-root"><a href="index.html">Byte Buddy 教程 <sup>Alpha</sup></a></span></p><ul class="sectlevel1">
+<li><a href="preface.html"><span class="toc-current">前言</span></a>
+<ul class="sectlevel2">
+<li><a href="preface.html#_友情支持">友情支持</a>
+</li>
+<li><a href="preface.html#_官网及版本库">官网及版本库</a>
+</li>
+</ul>
+</li>
+<li><a href="preliminary.html">为什么需要在运行时生成代码？</a>
+</li>
+<li><a href="creating-a-class.html">创建一个类</a>
+</li>
+<li><a href="fields-and-methods.html">属性和方法</a>
+</li>
+<li><a href="annotations.html">注解</a>
+</li>
+<li><a href="custom-instrumentation.html">定制化仪表</a>
+</li>
+<li><a href="license.html">附录 B: 版权声明</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="preface"><a class="anchor" href="#preface"></a>前言</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>本文档是 D瓜哥 在学习 <a href="http://bytebuddy.net/#/tutorial">Byte Buddy Tutorial</a> 时随手翻译的。水平有限，难免失误，欢迎随时发生 PR。谢谢！</strong></p>
+</div>
+<div class="sect2">
+<h3 id="_友情支持"><a class="anchor" href="#_友情支持"></a>友情支持</h3>
+<div class="paragraph">
+<p>如果您觉得这个笔记对您有所帮助，看在 D瓜哥 码字的辛苦上，请友情支持一下。屌丝逆袭，赢取白富美，走向人生巅峰就靠这个了，😜 😜</p>
+</div>
+<table class="tableblock frame-none grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="./assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>有些打赏的朋友希望可以加个好友，欢迎关注D瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_官网及版本库"><a class="anchor" href="#_官网及版本库"></a>官网及版本库</h3>
+<div class="paragraph">
+<p>本文档的版本库使用 Git 管理。另外，单独发布阅读版。</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">“地瓜哥”博客网</dt>
+<dd>
+<p><a href="https://www.diguage.com/" class="bare">https://www.diguage.com/</a> 。D瓜哥的个人博客。欢迎光临，不过，内容很杂乱，请见谅。不见谅，你来打我啊，😂😂</p>
+</dd>
+<dt class="hdlist1">本文档官网</dt>
+<dd>
+<p><a href="https://notes.diguage.com/byte-buddy-tutorial/" class="bare">https://notes.diguage.com/byte-buddy-tutorial/</a> 。为了方便阅读，这里展示了处理好的文档。阅读请点击这个网址。</p>
+</dd>
+<dt class="hdlist1">本文档版本库</dt>
+<dd>
+<p><a href="https://github.com/diguage/byte-buddy-tutorial" class="bare">https://github.com/diguage/byte-buddy-tutorial</a> 。反正也没啥保密可言，版本库分分钟给出。😜</p>
+</dd>
+</dl>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+文本中斜体字表示翻译很不满意，还需要再三斟酌来探究更好的翻译。希望感兴趣的小伙伴在阅读的时候多多留意。更希望发送 PR 过来。谢谢！！
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>↑ Up: <a href="index.html">Byte Buddy 教程 &lt;sup&gt;Alpha&lt;/sup</a>&gt; | Next: <a href="preliminary.html">为什么需要在运行时生成代码？</a> →</p>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+V 0.1.0<br>
+最后更新时间 2022-09-08 01:34:25 UTC
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="description" content="Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。">
+<meta name="keywords" content="Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机">
+<meta name="author" content="D瓜哥">
+<title>Byte Buddy 教程 Alpha</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>.toc-current{font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+<script>var _hmt = _hmt || [];(function () {var hm = document.createElement("script");hm.src = "https://hm.baidu.com/hm.js?ae79ae5854e141fa6c9a217b5dcf0e45";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm, s);})();</script></head>
+<body id="preliminary" class="book toc2 toc-left">
+<div id="header">
+<h1>Byte Buddy 教程 <sup>Alpha</sup></h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com/" class="bare">https://www.diguage.com/</a></span><br>
+<span id="revnumber">v 0.1.0,</span>
+<span id="revdate">2017-07-24</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">目录</div>
+<p><span class="toc-root"><a href="index.html">Byte Buddy 教程 <sup>Alpha</sup></a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言</a>
+</li>
+<li><a href="preliminary.html"><span class="toc-current">为什么需要在运行时生成代码？</span></a>
+<ul class="sectlevel2">
+<li><a href="preliminary.html#writing-a-security-library">编写一个安全的库</a>
+</li>
+<li><a href="preliminary.html#general-information">基本信息</a>
+</li>
+</ul>
+</li>
+<li><a href="creating-a-class.html">创建一个类</a>
+</li>
+<li><a href="fields-and-methods.html">属性和方法</a>
+</li>
+<li><a href="annotations.html">注解</a>
+</li>
+<li><a href="custom-instrumentation.html">定制化仪表</a>
+</li>
+<li><a href="license.html">附录 B: 版权声明</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="preliminary"><a class="anchor" href="#preliminary"></a>为什么需要在运行时生成代码？</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Java 语言带有一套比较严格的类型系统。Java 要求所有变量和对象都有一个确定的类型，并且任何赋值不兼容类型的尝试都会抛出错误。这些错误通常都会被编译器检查出来，或者极少情况下，在非法转换类型的时候由Java运行时抛出。如此严格的类型限制在大多数情况下是可取的，比如在编写业务应用时。在业务领域，通常可以以明确的方式去描述其中任何元素，各个元素都有自己明确的类型。通过这种方式，我们可以用 Java 构建具有非常强可读性和稳定性的应用，应用中的错误也非常贴近源码。除此之外，Java 严格的类型系统造就 Java 在企业编程中的普及。</p>
+</div>
+<div class="paragraph">
+<p><em>然而，通过强制实施其严格的类型系统，Java 限制了自己在其他领域的应用范围。</em> 比如，当编写一个供其他 Java 应用使用的通用库时，我们通常不能引用用户应用中定义的任何类型，因为当这个通用库被编译时，我们还不知道这些类型。为了调用用户未知代码的方法或者访问其属性，Java 类库提供了一套反射 API。使用这套反射 API，我们就可以反省未知类型，进而调用方法或者访问属性。不幸的是，这套反射 API 的用法有两个明显的缺点：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>相比硬编码的方法调用，使用 <a href="http://docs.oracle.com/javase/tutorial/reflect/index.html">反射 API 非常慢</a>：首先，需要执行一个相当昂贵的方法查找来获取描述特定方法的对象。同时，当一个方法被调用时，这要求 Java 虚拟机去运行本地代码，相比直接调用，这需要一个很长的运行时间。然而，现代 Java 虚拟机知道一个被称为“类型膨胀”的概念：基于 JNI 的方法调用会被动态生成的字节码给替换掉，而这些方法调用的字节码被注入到一个动态生成的类中。（即使 Java 虚拟机自身也使用代码生成！）毕竟，Java 的类型膨胀系统仍存在生成非常一般的代码的缺点，例如，仅能使用基本类型的装箱类型以至于性能缺陷不能完全解决。</p>
+</li>
+<li>
+<p>反射 API 能绕过类型安全检查：即使 Java 虚拟机支持通过反射进行代码调用，但反射 API 自身并不是类型安全的。当编写一个类库时，只要我们不需要把反射 API 暴露给库的用户，就不会有什么大问题。毕竟，当我们编译类库时，我们不知道用户代码，而且也不能校验我们的库与用户类型是否匹配。<em>有时，需要通过让一个库为我们自己调用我们自己的方法之一来向用户显示反射 API 示例。</em>这是使用反射 API 变得有问题的地方，因为 Java 编译器将具有所有信息来验证我们的程序的类型安全性。例如，当实现方法级安全库时，这个库的用户将希望这个库做到强制执行安全限制才能调用方法。为此，在用户传递过来方法所需的参数后，这个库将反射性地调用方法。这样，就没有编译时类型检查这些方法参数是否与方法的反射调用相匹配。方法调用依然会校验，只是被推迟到了运行时。这样做，我们就错失了 Java 编程语言的一大特性。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>这正是运行时代码生成能帮助我们的地方。它允许我们模拟一些只有使用动态编程语言编程才有的特性，而且不丢失 Java 的静态类型检查。这样，我们就可以两全其美并且还可以提高运行时性能。为了更好地理解这个问题，让我们实现一个方法级安全库。</p>
+</div>
+<div class="sect2">
+<h3 id="writing-a-security-library"><a class="anchor" href="#writing-a-security-library"></a>编写一个安全的库</h3>
+<div class="paragraph">
+<p>业务应用程序可能会增长，有时很难在我们的应用程序中概述调用堆栈。当我们在应用程序中使用至关重要的方法时，而这些方法只能在特定条件下调用，这可能会变得有问题。 设想一下，实现重置功能的业务应用程序可以从应用程序的数据库中删除所有内容。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">Service</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">deleteEverything</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// delete everything ...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>这样的复位操作当然只能由管理员执行，而不是由应用程序的普通用户执行。通过分析源代码，我们当然可以确保这将永远不会发生。但是，我们期望我们的应用能够在未来发展壮大。因此，我们希望实现更紧密的安全模型，其中通过对应用程序的当前用户的显式检查来保护方法调用。我们通常会使用一个安全框架来确保该方法从不被除管理员外的任何人调用。</p>
+</div>
+<div class="paragraph">
+<p>为此，假设我们使用具有公共 API 如下的安全框架：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="nd">@Retention</span><span class="o">(</span><span class="nc">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@interface</span> <span class="nc">Secured</span> <span class="o">{</span>
+  <span class="nc">String</span> <span class="nf">user</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">UserHolder</span> <span class="o">{</span>
+  <span class="kd">static</span> <span class="nc">String</span> <span class="n">user</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">interface</span> <span class="nc">Framework</span> <span class="o">{</span>
+  <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">secure</span><span class="o">(</span><span class="nc">Class</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">type</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在此框架中，<code>Secured</code> 注解应用于标记只能由给定用户访问的方法。<code>UserHolder</code> 用于在全局范围内定义当前登录到应用程序的用户。<code>Framework</code> 接口允许通过调用给定类型的默认构造函数来创建安全实例。当然，这个框架过于简单，但是，从本质上来说，即使流行的安全框架，例如 <a href="http://projects.spring.io/spring-security/">Spring Security</a>，也是这样实现的。这个安全框架的一个特点是我们过滤用户的类型。通过调用我们框架的接口，我们承诺返回给用户任何类型 <code>T</code> 的实例。幸亏这样，用户能够透明地他自己的类型进行交互，就像安全框架根本不存在一样。在测试环境中，用户甚至可以创建其类型的不安全实例，使用这些实例来代替安全实例。你会同意这真的很方便！已知这种框架使用 POJO，普通的旧 Java 对象进行交互，这是一种用于描述不侵入框架的术语，这些框架不会将自己的类型强加给用户。</p>
+</div>
+<div class="paragraph">
+<p>现在，想象一下，假如我们知道传递给 <code>Framework</code> 的类型只能是 <code>T = Service</code>，而且 <code>deleteEverything</code> 方法用 <code>@Secured("ADMIN")</code> 注解。这样，我们可以通过简单的子类化来轻松实现这种特定类型的安全版本：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">SecuredService</span> <span class="kd">extends</span> <span class="nc">Service</span> <span class="o">{</span>
+  <span class="nd">@Override</span>
+  <span class="kt">void</span> <span class="nf">deleteEverything</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">if</span><span class="o">(</span><span class="nc">UserHolder</span><span class="o">.</span><span class="na">user</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">))</span> <span class="o">{</span>
+      <span class="kd">super</span><span class="o">.</span><span class="na">deleteEverything</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">"Not authorized"</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>通过这个额外的类，我们可以实现框架如下：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">HardcodedFrameworkImpl</span> <span class="kd">implements</span> <span class="nc">Framework</span> <span class="o">{</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">secure</span><span class="o">(</span><span class="nc">Class</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">type</span> <span class="o">==</span> <span class="nc">Service</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="o">(</span><span class="no">T</span><span class="o">)</span> <span class="k">new</span> <span class="nc">SecuredService</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Unknown: "</span> <span class="o">+</span> <span class="n">type</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>当然这个实现并没有太多的用处。通过标注 <code>secure</code> 方法签名，我们建议该方法可以为任何类型提供安全性，但实际上，一旦遇到其他事情，我们将抛出一个异常，然后是已知的 <code>Service</code>。此外，当编译库时，这将需要我们的安全库知道有关此特定 <code>Service</code> 类型的信息。显然，这不是实现框架的可行解决方案。那么我们如何解决这个问题呢？好吧，由于这是一个关于代码生成库的教程，你可能已经猜到答案：当通过调用 <code>secure</code> 方法， <code>Service</code> 类第一次被我们安全框架知道时，我们会在运行时后台地创建一个子类。通过使用代码生成，我们可以使用任何给定的类型，在运行时将其子类化，并覆盖我们要保护的方法。在我们的例子中，我们覆盖所有被 <code>@Secured</code> 注解标注的方法，并从注解的 <code>user</code> 属性中读取所需的用户。许多流行的 Java 框架都使用类似的方法实现。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="general-information"><a class="anchor" href="#general-information"></a>基本信息</h3>
+<div class="paragraph">
+<p>在学习代码生成和 Byte Buddy 之前，请注意，应该谨慎使用代码生成。Java 类型对于 Java 虚拟机来说，是相当特别的东西，通常不能当做垃圾被回收。因此，不应该过度使用代码生成，而应该只在生成代码是解决问题的唯一出路时使用。但是，如果需要像上面的示例那样增强未知类型时，则代码生成很可能是你唯一的选择。用于安全性，事务管理，对象关系映射或类型模拟（mock）等框架是代码生成库的典型用户。</p>
+</div>
+<div class="paragraph">
+<p>当然，Byte Buddy 不是 Java 虚拟机上第一个代码生成库。不过，我们认为 Byte Buddy 拥有其他框架没有的技巧。Byte Buddy 的总体目标是通过专注于其领域特定语言和注解的使用来声明式地进行工作。据我们所知，没有其他针对 Java 虚拟机的代码生成库以这种方式工作。不过，你可能希望看一下其他代码生成框架，以找出最适合你的套件。以下库在 Java 中很流行：</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/reflect/Proxy.html"><strong>Java Proxy</strong></a></dt>
+<dd>
+<p>Java 类库自带了一个代理工具，它允许为实现了一系列接口的类创建代理。这个内置的代理供应商非常方便，但局限性也特别明显。 上面提到的安全框架就不能用这样的方式来实现的，因为我们想扩展是类而不是扩展接口。</p>
+</dd>
+<dt class="hdlist1"><a href="https://github.com/cglib/cglib"><strong>cglib</strong></a></dt>
+<dd>
+<p>代码生成库（注：这里指 <code>cglib</code>）诞生于 Java 初期，但不幸的是没有跟上 Java 平台的发展。然而，cglib 仍然是一个相当强大的库，但其积极的开发却变得相当模糊。鉴于此，其许多用户已经离开了 cglib。</p>
+</dd>
+<dt class="hdlist1"><a href="https://github.com/jboss-javassist/javassist"><strong>Javassist</strong></a></dt>
+<dd>
+<p>该库附带一个编译器，它使用包含 Java 源代码的字符串，这些字符串在应用程序的运行时被转换为 Java 字节码。这是非常有前途的，本质上是一个好主意，因为 Java 源代码显然是描述 Java 类的好方法。但是，Javassist 编译器在功能上比不了 javac 编译器，并且在动态组合字符串以实现比较复杂的逻辑时容易出错。此外，Javassist 还提供了一个类似于 Java 类库中的代理工具，但允许扩展类，并不限于接口。然而，Javassist 的代理工具的范围在其 API 和功能上仍然受到限制。</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>即使评估完这些框架，但我们相信 Byte Buddy 提供了功能和便利，可以减少徒劳地搜索。Byte Buddy 提供了一种具有表现力的领域特定语言，允许通过编写简单的 Java 代码和使用强大的类型为你自己的代码创建非常自定义的运行时类。与此同时，Byte Buddy 还具有非常开放的定制性，并不限制开箱即用的功能。如果需要，你甚至可以为任何实现的方法定义自定义字节码。但即使不知道什么字节代码是或它如何工作，你可以做很多，而不深入到框架。你有没有看看 <a href="http://bytebuddy.net/#/"><code>Hello World!</code> example?</a>，使用 Byte Buddy 是如此简单。</p>
+</div>
+<div class="paragraph">
+<p>当然，在选择代码生成库时，一个愉快的 API 不是唯一需要考虑的特性。对于许多应用程序，生成代码的运行时特性更有可能确定最佳选择。<em>而在生成的代码本身的运行时间之外，用于创建动态类的运行时也是一个问题。</em>声称“我们是最快的！”很容易，但是为库的速度提供有效的评比指标却很难。不过，我们希望提供这样的指标作为基本方向。但是，请注意，这些结果并不一定会转化为更具体的用例，此时你应该采用单独的指标。</p>
+</div>
+<div class="paragraph">
+<p>在讨论我们的指标之前，让我们来看一下原始数据。下表显示了一个操作的平均运行时间，以纳秒为单位，标准偏差在括号内附加：</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">　</th>
+<th class="tableblock halign-right valign-top">基线</th>
+<th class="tableblock halign-right valign-top">Byte Buddy</th>
+<th class="tableblock halign-right valign-top">cglib</th>
+<th class="tableblock halign-right valign-top">Javassist</th>
+<th class="tableblock halign-right valign-top">Java proxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">简单的类创建</p></th>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.003	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">142.772	(1.390)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">515.174	(26.753)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">193.733	(4.430)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">70.712	(0.645)</p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">接口实现</p></th>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.004	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">1'126.364	(10.328)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">960.527	(11.788)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">1'070.766	(59.865)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">1'060.766	(12.231)</p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">方法调用</p></th>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.002	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.002	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.003	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.011	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.008	(0.001)</p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">类型扩展</p></th>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.004	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">885.983 (7.901)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">1'632.730	(52.737)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">683.478	(6.735)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">5'408.329 (52.437)</p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">父类方法调用</p></th>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.004	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.004 (0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.021	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.025	(0.001)</p></td>
+<td class="tableblock halign-right valign-top"><p class="tableblock">0.004 (0.001)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>与静态编译器类似，代码生成库在生成快速代码和快速生成代码之间面临着折衷。当在这些冲突的目标之间进行选择时，Byte Buddy 的主要侧重点在于以最少的运行时生成代码。通常，类型创建或操作不是任何程序中的常见步骤，并不会对任何长期运行的应用程序产生重大影响；特别是因为类加载或类构建（class instrumentation）是运行此类代码时最耗时且不可避免的步骤。</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+按照这个逻辑，D瓜哥觉得应该选择“生成快速代码”，毕竟很少生成而且只生成一次，但是生成的代码却可能运行多次。不过，考虑到 Java 虚拟机的优化，选择“生成快速代码”是否是更好的选择呢？
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>上表中的第一个基准测试测量一个库在运行时子类化类，并且不实现或覆盖任何方法。这给我们一个库在代码生成时的一般开销的印象。在这个基准测试中，Java 代理执行得比其他库更好，这是因为存在着一种优化，假设总是扩展接口。Byte Buddy 还会检查类的泛型和注解类别，从而导致额外的运行时间。这个性能开销在创建类的其他基准中也是可见的。基准（2a）展示了运行时创建类，这个类实现了一个有 18 个方法的接口；（2b）显示为此类生成的方法的执行时间。类似地，（3a）显示了扩展类的基准，这个拥有相同的 18 种被实现的方法。 Byte Buddy 提供了两个基准测试，因为对于总是执行超类方法的拦截器来说，可能的优化是可能的。除了在类创建期间花费一段时间，Byte Buddy 创建类的执行时间通常达到基线，这意味着构建根本不会产生开销。应该注意的是，如果元数据处理被禁用，则在类创建期间，Byte Buddy 也会胜过任何其他代码生成库。由于代码生成的运行时间与程序的总运行时间相比微乎其微，所以这种性能优化是不可取的，因为它虽然获得了极少的性能，但却使库代码复杂很多。</p>
+</div>
+<div class="paragraph">
+<p>最后，请注意，我们这些衡量 Java 代码性能的测试，都由 Java 虚拟机即时编译器优化过。如果你的代码只能偶尔执行，那么性能将会比上述表格指标略差。在这种情况下，你的代码并不是性能攸关的开始。这些性能测试代码与 Byte Buddy 一起发布，你可以在自己的计算机上运行这些指标，其中可能会根据你的机器的处理能力对上述数字进行涨跌。因此，不要绝对地解释上述数字，而是将它们视为不同库的对比方式。当进一步开发 Byte Buddy 时，我们希望监控这些指标，以避免在添加新功能时造成性能损失。</p>
+</div>
+<div class="paragraph">
+<p>在下面的教程中，我们将会逐步说明 Byte Buddy 的功能。我们将从其更广泛的功能开始，这些功能最有可能被大多数用户使用。然后，我们将考虑越来越多的高级主题，并简要介绍 Java 字节码和类文件格式。即使你快速跳过这以后的材料，也不要灰心！你可以通过使用 Byte Buddy 的标准 API 来完成任何操作，而无需了解任何 JVM 规范。要了解标准 API，只需继续阅读。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="preface.html">前言</a> | ↑ Up: <a href="index.html">Byte Buddy 教程 &lt;sup&gt;Alpha&lt;/sup</a>&gt; | Next: <a href="creating-a-class.html">创建一个类</a> →</p>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+V 0.1.0<br>
+最后更新时间 2022-09-08 01:34:25 UTC
+</div>
+</div>
+</body>
+</html>

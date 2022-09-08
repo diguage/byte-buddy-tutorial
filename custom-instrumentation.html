@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="description" content="Byte Buddy 教程 -- Byte Buddy 是一个字节码生成与维护的库，主要用于在 Java 应用运行时生成和修改 Java 类，并且不需要编译器来辅助。">
+<meta name="keywords" content="Byte Buddy Tutorial, Byte Buddy 教程, 字节码, Java, JVM, Java Virtual Machine, Java 虚拟机">
+<meta name="author" content="D瓜哥">
+<title>Byte Buddy 教程 Alpha</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="assets/styles/asciidoctor.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/styles/rouge-github.css">
+<style>.toc-current{font-weight: bold;} .toc-root{font-family: "Open Sans","DejaVu Sans",sans-serif;
+                       font-size: 0.9em;} #content{display: flex; flex-direction: column; flex: 1 1 auto;}
+             .nav-footer{text-align: center; margin-top: auto;}
+             .nav-footer > p > a {white-space: nowrap;}</style>
+<script>var _hmt = _hmt || [];(function () {var hm = document.createElement("script");hm.src = "https://hm.baidu.com/hm.js?ae79ae5854e141fa6c9a217b5dcf0e45";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm, s);})();</script></head>
+<body id="custom-instrumentation" class="book toc2 toc-left">
+<div id="header">
+<h1>Byte Buddy 教程 <sup>Alpha</sup></h1>
+<div class="details">
+<span id="author" class="author">D瓜哥</span><br>
+<span id="email" class="email"><a href="https://www.diguage.com/" class="bare">https://www.diguage.com/</a></span><br>
+<span id="revnumber">v 0.1.0,</span>
+<span id="revdate">2017-07-24</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">目录</div>
+<p><span class="toc-root"><a href="index.html">Byte Buddy 教程 <sup>Alpha</sup></a></span></p><ul class="sectlevel1">
+<li><a href="preface.html">前言</a>
+</li>
+<li><a href="preliminary.html">为什么需要在运行时生成代码？</a>
+</li>
+<li><a href="creating-a-class.html">创建一个类</a>
+</li>
+<li><a href="fields-and-methods.html">属性和方法</a>
+</li>
+<li><a href="annotations.html">注解</a>
+</li>
+<li><a href="custom-instrumentation.html"><span class="toc-current">定制化仪表</span></a>
+<ul class="sectlevel2">
+<li><a href="custom-instrumentation.html#creating-a-custom-assigner">创建自定义分配器</a>
+</li>
+<li><a href="custom-instrumentation.html#creating-a-custom-parameter-binder">创建自定义参数绑定器</a>
+</li>
+</ul>
+</li>
+<li><a href="license.html">附录 B: 版权声明</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content"><div class="sect2"><h3 id="_友情支持">友情支持</h3><div class="paragraph"><p>如果您觉得这个笔记对您有所帮助，看在D瓜哥码这么多字的辛苦上，请友情支持一下，D瓜哥感激不尽，😜</p></div><table class="tableblock frame-none grid-all stretch"><colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/alipay.png" alt="支付宝" width="85%" title="支付宝"></span></p></td><td class="tableblock halign-center valign-top"><p class="tableblock"><span class="image"><img src="assets/images/wxpay.jpg" alt="微信" width="85%" title="微信"></span></p></td></tr></tbody></table><div class="paragraph"><p>有些打赏的朋友希望可以加个好友，欢迎关注D 瓜哥的微信公众号，这样就可以通过公众号的回复直接给我发信息。</p></div><div class="paragraph"><p><span class="image"><img src="assets/images/wx-jikerizhi.png" alt="wx jikerizhi" width="98%"></span></p></div><div class="admonitionblock tip"><table><tbody><tr><td class="icon"><i class="fa icon-tip" title="Tip"></i></td><td class="content"><strong>公众号的微信号是: <code>jikerizhi</code></strong>。<em>因为众所周知的原因，有时图片加载不出来。 如果图片加载不出来可以直接通过搜索微信号来查找我的公众号。</em></td></tr></tbody></table></div></div>
+<div class="sect1">
+<h2 id="custom-instrumentation"><a class="anchor" href="#custom-instrumentation"></a>定制化仪表</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="no">LDC</span>     <span class="mi">10</span>  <span class="c1">// stack contains 10</span>
+<span class="no">LDC</span>     <span class="mi">50</span>  <span class="c1">// stack contains 10, 50</span>
+<span class="no">IADD</span>        <span class="c1">// stack contains 60</span>
+<span class="no">IRETURN</span>     <span class="c1">// stack is empty</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="mi">12</span> <span class="mo">00</span> <span class="mo">01</span>
+<span class="mi">12</span> <span class="mo">00</span> <span class="mo">02</span>
+<span class="mi">60</span>
+<span class="no">AC</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="code"><pre><span class="kd">enum</span> <span class="nc">IntegerSum</span> <span class="kd">implements</span> <span class="nc">StackManipulation</span> <span class="o">{</span>
+
+  <span class="no">INSTANCE</span><span class="o">;</span> <span class="c1">// singleton</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">Size</span> <span class="nf">apply</span><span class="o">(</span><span class="nc">MethodVisitor</span> <span class="n">methodVisitor</span><span class="o">,</span>
+                    <span class="nc">Implementation</span><span class="o">.</span><span class="na">Context</span> <span class="n">implementationContext</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">methodVisitor</span><span class="o">.</span><span class="na">visitInsn</span><span class="o">(</span><span class="nc">Opcodes</span><span class="o">.</span><span class="na">IADD</span><span class="o">);</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">Size</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="code"><pre><span class="kd">enum</span> <span class="nc">SumMethod</span> <span class="kd">implements</span> <span class="nc">ByteCodeAppender</span> <span class="o">{</span>
+
+  <span class="no">INSTANCE</span><span class="o">;</span> <span class="c1">// singleton</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">Size</span> <span class="nf">apply</span><span class="o">(</span><span class="nc">MethodVisitor</span> <span class="n">methodVisitor</span><span class="o">,</span>
+                    <span class="nc">Implementation</span><span class="o">.</span><span class="na">Context</span> <span class="n">implementationContext</span><span class="o">,</span>
+                    <span class="nc">MethodDescription</span> <span class="n">instrumentedMethod</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">instrumentedMethod</span><span class="o">.</span><span class="na">getReturnType</span><span class="o">().</span><span class="na">asErasure</span><span class="o">().</span><span class="na">represents</span><span class="o">(</span><span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="n">instrumentedMethod</span> <span class="o">+</span> <span class="s">" must return int"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="nc">StackManipulation</span><span class="o">.</span><span class="na">Size</span> <span class="n">operandStackSize</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StackManipulation</span><span class="o">.</span><span class="na">Compound</span><span class="o">(</span>
+      <span class="nc">IntegerConstant</span><span class="o">.</span><span class="na">forValue</span><span class="o">(</span><span class="mi">10</span><span class="o">),</span>
+      <span class="nc">IntegerConstant</span><span class="o">.</span><span class="na">forValue</span><span class="o">(</span><span class="mi">50</span><span class="o">),</span>
+      <span class="nc">IntegerSum</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">,</span>
+      <span class="nc">MethodReturn</span><span class="o">.</span><span class="na">INTEGER</span>
+    <span class="o">).</span><span class="na">apply</span><span class="o">(</span><span class="n">methodVisitor</span><span class="o">,</span> <span class="n">implementationContext</span><span class="o">);</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">Size</span><span class="o">(</span><span class="n">operandStackSize</span><span class="o">.</span><span class="na">getMaximalSize</span><span class="o">(),</span>
+                    <span class="n">instrumentedMethod</span><span class="o">.</span><span class="na">getStackSize</span><span class="o">());</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+</pre></td><td class="code"><pre><span class="kd">enum</span> <span class="nc">SumImplementation</span> <span class="kd">implements</span> <span class="nc">Implementation</span> <span class="o">{</span>
+
+  <span class="no">INSTANCE</span><span class="o">;</span> <span class="c1">// singleton</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">InstrumentedType</span> <span class="nf">prepare</span><span class="o">(</span><span class="nc">InstrumentedType</span> <span class="n">instrumentedType</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">instrumentedType</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">ByteCodeAppender</span> <span class="nf">appender</span><span class="o">(</span><span class="nc">Target</span> <span class="n">implementationTarget</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">SumMethod</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="code"><pre><span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">SumExample</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">int</span> <span class="nf">calculate</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="k">new</span> <span class="nf">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">SumExample</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">named</span><span class="o">(</span><span class="s">"calculate"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">intercept</span><span class="o">(</span><span class="nc">SumImplementation</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">()</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="creating-a-custom-assigner"><a class="anchor" href="#creating-a-custom-assigner"></a>创建自定义分配器</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="code"><pre><span class="kd">enum</span> <span class="nc">ToStringAssigner</span> <span class="kd">implements</span> <span class="nc">Assigner</span> <span class="o">{</span>
+
+  <span class="no">INSTANCE</span><span class="o">;</span> <span class="c1">// singleton</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">StackManipulation</span> <span class="nf">assign</span><span class="o">(</span><span class="nc">TypeDescription</span><span class="o">.</span><span class="na">Generic</span> <span class="n">source</span><span class="o">,</span>
+                                  <span class="nc">TypeDescription</span><span class="o">.</span><span class="na">Generic</span> <span class="n">target</span><span class="o">,</span>
+                                  <span class="nc">Assigner</span><span class="o">.</span><span class="na">Typing</span> <span class="n">typing</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">source</span><span class="o">.</span><span class="na">isPrimitive</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">target</span><span class="o">.</span><span class="na">represents</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="nc">MethodDescription</span> <span class="n">toStringMethod</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TypeDescription</span><span class="o">.</span><span class="na">ForLoadedType</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">getDeclaredMethods</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">named</span><span class="o">(</span><span class="s">"toString"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">getOnly</span><span class="o">();</span>
+      <span class="k">return</span> <span class="nc">MethodInvocation</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">toStringMethod</span><span class="o">).</span><span class="na">virtual</span><span class="o">(</span><span class="n">sourceType</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="nc">StackManipulation</span><span class="o">.</span><span class="na">Illegal</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">;</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="k">new</span> <span class="nc">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">named</span><span class="o">(</span><span class="s">"toString"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">intercept</span><span class="o">(</span><span class="nc">FixedValue</span><span class="o">.</span><span class="na">value</span><span class="o">(</span><span class="mi">42</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withAssigner</span><span class="o">(</span><span class="k">new</span> <span class="nc">PrimitiveTypeAwareAssigner</span><span class="o">(</span><span class="nc">ToStringAssigner</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">),</span>
+                    <span class="nc">Assigner</span><span class="o">.</span><span class="na">Typing</span><span class="o">.</span><span class="na">STATIC</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">()</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="creating-a-custom-parameter-binder"><a class="anchor" href="#creating-a-custom-parameter-binder"></a>创建自定义参数绑定器</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="nd">@Retention</span><span class="o">(</span><span class="nc">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@interface</span> <span class="nc">StringValue</span> <span class="o">{</span>
+  <span class="nc">String</span> <span class="nf">value</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="code"><pre><span class="kd">enum</span> <span class="nc">StringValueBinder</span>
+    <span class="kd">implements</span> <span class="nc">TargetMethodAnnotationDrivenBinder</span><span class="o">.</span><span class="na">ParameterBinder</span><span class="o">&lt;</span><span class="nc">StringValue</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="no">INSTANCE</span><span class="o">;</span> <span class="c1">// singleton</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">Class</span><span class="o">&lt;</span><span class="nc">StringValue</span><span class="o">&gt;</span> <span class="nf">getHandledType</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nc">StringValue</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="nc">MethodDelegationBinder</span><span class="o">.</span><span class="na">ParameterBinding</span><span class="o">&lt;?&gt;</span> <span class="n">bind</span><span class="o">(</span><span class="nc">AnnotationDescription</span><span class="o">.</span><span class="na">Loaded</span><span class="o">&lt;</span><span class="nc">StringValue</span><span class="o">&gt;</span> <span class="n">annotation</span><span class="o">,</span>
+                                                         <span class="nc">MethodDescription</span> <span class="n">source</span><span class="o">,</span>
+                                                         <span class="nc">ParameterDescription</span> <span class="n">target</span><span class="o">,</span>
+                                                         <span class="nc">Implementation</span><span class="o">.</span><span class="na">Target</span> <span class="n">implementationTarget</span><span class="o">,</span>
+                                                         <span class="nc">Assigner</span> <span class="n">assigner</span><span class="o">,</span>
+                                                         <span class="nc">Assigner</span><span class="o">.</span><span class="na">Typing</span> <span class="n">typing</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">target</span><span class="o">.</span><span class="na">getType</span><span class="o">().</span><span class="na">asErasure</span><span class="o">().</span><span class="na">represents</span><span class="o">(</span><span class="nc">String</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="n">target</span> <span class="o">+</span> <span class="s">" makes illegal use of @StringValue"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="nc">StackManipulation</span> <span class="n">constant</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TextConstant</span><span class="o">(</span><span class="n">annotation</span><span class="o">.</span><span class="na">loadSilent</span><span class="o">().</span><span class="na">value</span><span class="o">());</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nc">MethodDelegationBinder</span><span class="o">.</span><span class="na">ParameterBinding</span><span class="o">.</span><span class="na">Anonymous</span><span class="o">(</span><span class="n">constant</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="java"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="kd">class</span> <span class="nc">ToStringInterceptor</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">makeString</span><span class="o">(</span><span class="nd">@StringValue</span><span class="o">(</span><span class="s">"Hello!"</span><span class="o">)</span> <span class="nc">String</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="k">new</span> <span class="nf">ByteBuddy</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">subclass</span><span class="o">(</span><span class="nc">Object</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">named</span><span class="o">(</span><span class="s">"toString"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">intercept</span><span class="o">(</span><span class="nc">MethodDelegation</span><span class="o">.</span><span class="na">withDefaultConfiguration</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withBinders</span><span class="o">(</span><span class="nc">StringValueBinder</span><span class="o">.</span><span class="na">INSTANCE</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">to</span><span class="o">(</span><span class="nc">ToStringInterceptor</span><span class="o">.</span><span class="na">class</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">make</span><span class="o">()</span>
+</pre></td></tr></tbody></table></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph nav-footer">
+<p>← Previous: <a href="annotations.html">注解</a> | ↑ Up: <a href="index.html">Byte Buddy 教程 &lt;sup&gt;Alpha&lt;/sup</a>&gt; | Next: <a href="license.html">附录 A: 版权声明</a> →</p>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+V 0.1.0<br>
+最后更新时间 2022-09-08 01:34:25 UTC
+</div>
+</div>
+</body>
+</html>
